@@ -1,0 +1,132 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-4 mt-4">
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success bg-gradient text-light text-center">
+                    <h2 class="text-light">Create New Account</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.ApplicationUser.Name" class="form-control form-input-style" autocomplete="name" aria-required="true" placeholder="name@example.com" />
+                        <label asp-for="Input.ApplicationUser.Name" class="form-label text-success">Name</label>
+                        <span asp-validation-for="Input.ApplicationUser.Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Email" class="form-control form-input-style" autocomplete="email" aria-required="true" placeholder="name@example.com" />
+                        <label asp-for="Input.Email" class="form-label text-success">Email</label>
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.PhoneNumber" class="form-control form-input-style" autocomplete="phone" aria-required="true" placeholder="name@example.com" />
+                        <label asp-for="Input.PhoneNumber" class="form-label text-success">Phone Number</label>
+                        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.ApplicationUser.Address" class="form-control form-input-style" autocomplete="address" aria-required="true" placeholder="name@example.com" />
+                        <label asp-for="Input.ApplicationUser.Address" class="form-label text-success">Address</label>
+                        <span asp-validation-for="Input.ApplicationUser.Address" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.ApplicationUser.PostalCode" class="form-control form-input-style" autocomplete="postalcode" aria-required="true" placeholder="name@example.com" />
+                        <label asp-for="Input.ApplicationUser.PostalCode" class="form-label text-success">Postal Code</label>
+                        <span asp-validation-for="Input.ApplicationUser.PostalCode" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Password" class="form-control form-input-style" autocomplete="new-password" aria-required="true" placeholder="password" />
+                        <label asp-for="Input.Password" class="form-label text-success">Password</label>
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.ConfirmPassword" class="form-control form-input-style" autocomplete="new-password" aria-required="true" placeholder="password" />
+                        <label asp-for="Input.ConfirmPassword" class="form-label text-success">Confirm Password</label>
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                    </div>
+                    @if (User.IsInRole(StaticValues.Role_Admin))
+                    {
+                        <div class="mb-3">
+                            <a class="btn btn-hover d-flex justify-content-between align-items-center text-light bg-gradient-right dropdown-toggle w-100" id="role-button" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Role</a>
+                            <input type="hidden" asp-for="Input.Role" id="hiddenRole" />
+                            <div class="dropdown-menu bg-gradient-right position-absolute" style="cursor:pointer" id="menu">
+                                @if (Model?.Input?.RoleList != null)
+                                {
+                                    foreach (var item in @Model.Input.RoleList)
+                                    {
+                                        <a class="dropdown-item btn-hover text-light roleMenuItem" data-role="@item.Text">@item.Text</a>
+                                    }
+                                }
+                            </div>
+                            <span asp-validation-for="Input.Role" class="text-danger"></span>
+                        </div>
+                        @* <div class="mb-3">
+                    <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-select form-input-style ">
+                    <option disabled selected>--Role--</option>
+                    </select>
+                    <span asp-validation-for="Input.Role" class="text-danger"></span>
+                    </div> *@
+                    }
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                    <button id="registerSubmit" type="submit" class="w-100 btn btn-lg bg-gradient-right btn-hover">Register</button>
+                </div>
+            </div>
+        </form>
+        <div class="divider-text d-flex py-3">or</div>
+    </div>
+
+</div>
+<div class="row justify-content-center">
+    <div class="col-md-6 col-md-offset-2 text-center">
+
+        <section>
+
+            @{
+                if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                {
+                    <div>
+                        <p>
+                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
+                                article
+                                about setting up this ASP.NET application to support logging in via external services
+                            </a>.
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                        <div>
+                            <p>
+                                @foreach (var provider in Model.ExternalLogins!)
+                                {
+                                    <button type="submit" class="btn bg-gradient-right btn-hover" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                }
+                            </p>
+                        </div>
+                    </form>
+                }
+            }
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const roleMenu = document.getElementById('menu');
+        if (roleMenu) {
+            roleMenu.addEventListener('click', function (e) {
+                if (e.target.classList.contains('roleMenuItem')) {
+                    const _role = e.target.dataset.role;
+                    document.getElementById('role-button').textContent = _role;
+                    document.getElementById('hiddenRole').value = _role;
+                }
+            });
+        }
+    </script>
+}

@@ -1,0 +1,36 @@
+﻿@model IEnumerable<Product>
+<style>
+    .scrollbar-color {
+        scrollbar-color: #2aa198 #002b36; /* thumb color and track color */
+        scrollbar-width: thin; /* Width of the scrollbar (auto, thin, or none) */
+    }
+</style>
+<div class="row py-4">
+    <div class="col-6 text-center">
+        <input class="rounded ps-2" placeholder="Search by Category" id="searchInput" />
+    </div>
+    <div class="col-6 text-center pe-5">
+        <a asp-controller="Product" asp-action="CreateUpdate" class="btn bg-gradient-right btn-hover"><i class="bi bi-plus-circle"></i> Create Product</a>
+    </div>
+</div>
+
+<div class="row justify-content-center table-responsive scrollbar-color">
+    <div class="col-8" style="height:500px;overflow-x:auto">
+        <table class="table caption-top table-bordered table-striped border-dark table-light" style="table-layout:fixed;width:800px">
+            <caption><h2 class="text-success fw-bold">Product List</h2></caption>
+            <thead>
+                <tr>
+                    <th>Product Title</th>
+                    <th>Description</th>
+                    <th>SKU</th>
+                    <th>Price</th>
+                    <th>Category</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="productTbody">
+                <partial name="_ProductTableBody" />
+            </tbody>
+        </table>
+    </div>
+</div>

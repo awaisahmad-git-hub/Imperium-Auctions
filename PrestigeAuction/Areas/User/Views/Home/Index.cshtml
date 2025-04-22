@@ -1,0 +1,20 @@
+﻿@model IEnumerable<Product>
+@{
+    ViewBag.Title = "Home";
+}
+<style>
+    .clickable-card {
+        transition: transform 0.3s;
+    }
+    .clickable-card:hover {
+        transform: scale(1.2);
+    }
+    .text-ellipsis {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+<div class="row py-4" id="homeProducts">
+    <partial name="_HomeProducts" />
+</div>

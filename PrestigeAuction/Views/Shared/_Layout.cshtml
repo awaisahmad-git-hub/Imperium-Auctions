@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html>
+<html lang="en" style="min-height:100%">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prestige Auction | @ViewBag.Title</title>
+    <link rel="icon" type="image/x-icon" href="~/image/logo/favicon.ico" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/PrestigeAuction.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+</head>
+<body class="bg-light d-flex flex-column min-vh-100" style="overscroll-behavior:none">
+    <header class="position-sticky top-0 z-3 ">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-gradient-right" data-bs-theme="dark">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center flex-wrap w-100">
+                    <a class="navbar-brand d-flex align-items-center fs-1" style="font-family:Algerian" asp-area="User" asp-controller="Home" asp-action="Index">
+                        <img src="~/image/logo/logo.png" asp-append-version="true" style="width: 50px; height: 50px;  border-radius:30px; margin-right: 10px;" />
+                        Prestige Auction
+                    </a>
+                    <div class="d-flex ms-auto">
+                        <partial name="_LoginPartial" />
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <nav class="navbar navbar-expand-md navbar-light bg-light border-bottom border-dark-subtle" style="height:70px" data-bs-theme="light">
+            <div class="container-fluid position-absolute z-3 top-0 mt-3">
+                <button class="navbar-toggler bg-gradient-right btn-hover py-2 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="bi bi-list text-light"></i>
+                </button>
+                <div class="navbar-collapse collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav gap-2">
+                        <li class="nav-item">
+                            <a class="btn btn-hover bg-gradient-right btn-fixed" asp-area="User" asp-controller="Home" asp-action="Index">Home</a>
+                        <li class="nav-item dropdown">
+                            <a class="btn btn-hover text-light bg-gradient-right btn-fixed dropdown-toggle d-flex justify-content-between align-items-center @IsHidden("Home","Index")" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Categories</a>
+                            <div class="dropdown-menu bg-gradient-right position-absolute" style="cursor:pointer" id="homeCategoryMenu">
+                                <a class="dropdown-item btn-hover text-light homeCategoryMenuItem">All</a>
+                                <div class="dropdown-divider my-0"></div>
+                                    @if (ViewBag.CategoryModel?.CategoryList != null)
+                                    {
+                                        foreach (var item in ViewBag.CategoryModel.CategoryList)
+                                        {
+                                        <a class="dropdown-item btn-hover text-light homeCategoryMenuItem" data-category="@item.Text">@item.Text</a>
+                                        }
+                                    }
+                            </div>
+                        </li>
+                            @if (User.IsInRole(StaticValues.Role_Admin))
+                            {
+                            <li class="nav-item dropdown">
+                                <a class="btn btn-hover bg-gradient-right text-light btn-fixed dropdown-toggle d-flex justify-content-between align-items-center" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Manage</a>
+                                <div class="dropdown-menu bg-gradient-right position-absolute">
+                                    <a class="dropdown-item btn-hover text-light @IsActive("Category","Index")" asp-area="Admin" asp-controller="Category" asp-action="Index">Category</a>
+                                    <a class="dropdown-item btn-hover text-light @IsActive("Product","Index")" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a>
+                                    <a class="dropdown-item btn-hover text-light @IsActive("/Account/Register")" id="register" asp-area="Identity" asp-page="/Account/Register">Create User</a>
+                                </div>
+                            </li>
+                            }
+                    </ul>
+                </div>
+            </div>
+            <div class="d-flex align-items-center z-3 me-3 gap-1 ms-auto @IsHidden("Home","Index")">
+                <input class="input-outline-remove border-dark rounded ps-2" placeholder="Search by Product Name" style="min-height:38px" />
+                <i class="bi bi-search btn bg-gradient-right btn-hover"></i>
+            </div>
+        </nav>
+    </header>
+    <main class="flex-fill" role="main">
+    <div class="container">
+            <partial name="_Notification" />
+            @RenderBody()
+    </div>
+    </main>
+    @functions {
+        public string IsActive(string controller, string action)
+        {
+            var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+            var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+            return (controller == currentController && action == currentAction) ? "active" : "";
+        }
+        public string IsActive(string page)
+        {
+            var currentPage = ViewContext.RouteData.Values["page"]?.ToString();
+            return (page == currentPage) ? "active" : "";
+        }
+        public string IsHidden(string controller, string action)
+        {
+            var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+            var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+            return (controller == currentController && action == currentAction) ? "" : "visually-hidden";
+        }
+    }
+    <footer class="footer bg-gradient-left position-static py-4 mt-4" style="line-height:normal">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6 col-md-3 col text-wrap d-flex flex-column gap-2 mb-4">
+                    <h4 class="text-light">ABOUT US</h4>
+                    <p style="text-align:justify;padding-right:80px;margin:0">
+                        Your trusted online platform for high-quality auctions.
+                        Experience the thrill of live auctions, and grow your collection with us.
+                    </p>
+                </div>
+                <div class="col-sm-6 col-md-3 d-flex flex-column gap-2 mb-4">
+                    <h4 class="text-light">QUICK LINKS</h4>
+                    <div>
+                        <a class="text-decoration-none text-light footer-link-hover" asp-area="User" asp-controller="Home" asp-action="Index">Home</a>
+                    </div>
+                    <div>
+                        <a class="text-decoration-none text-light footer-link-hover" asp-area="Identity" asp-page="/Account/Register">Register</a>
+                    </div>
+                    <div>
+                        <a class="text-decoration-none text-light footer-link-hover" asp-area="Identity" asp-page="/Account/Login">Login</a>
+                    </div>
+                    <div>
+                        <a class="text-decoration-none text-light footer-link-hover" asp-area="User" asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3 text-wrap d-flex flex-column gap-2 mb-4">
+                    <h4 class="text-light">CONTACT US</h4>
+                    <a class="text-decoration-none text-light footer-link-hover" href="#">+923012345678</a>
+                    <a class="text-decoration-none text-light footer-link-hover" href="#">support@prestigeauction.com</a>
+                    <span>Islamabad, Pakistan</span>
+                </div>
+                <div class="col-sm-6 col-md-3 text-wrap mb-4  ">
+                    <h4 class="text-light mb-3">FOLLOW US</h4>
+                    <a class="footer-link-hover text-light me-3" href="#"><i class="bi bi-twitter-x"></i></a>
+                    <a class="footer-link-hover text-light me-3" href="#"><i class="bi bi-facebook"></i></a>
+                    <a class="footer-link-hover text-light me-3" href="#"><i class="bi bi-linkedin"></i></a>
+                    <a class="footer-link-hover text-light me-3" href="#"><i class="bi bi-instagram"></i></a>
+                </div>
+                <div class="row justify-content-center mt-4">
+                    <div class="col-auto">
+                        &copy; 2025 Prestige Auction. All rights reserved.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/product.js" asp-append-version="true"></script>
+    <script src="~/js/bid.js" asp-append-version="true"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,15 @@
+﻿@model ProductViewModel
+
+@if (Model.Product?.ProductImageList != null)
+{
+    foreach (var image in Model.Product.ProductImageList)
+    {
+        <div>
+            <a onclick="DeleteImage(@image.ImageID)">
+                <i class="bi bi-x-circle btn btn-hover float-end p-0 border-0 text-danger"></i>
+            </a>
+            <img src="@image.ImageURL" width="100%" class="bg-white rounded" style="height:150px;object-fit:contain" />
+        </div>
+    }
+}
+

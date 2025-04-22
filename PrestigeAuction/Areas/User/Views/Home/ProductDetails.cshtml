@@ -1,0 +1,410 @@
+﻿@model Product_Bid_MaxBid_CountDownTargetViewModel
+@{
+    ViewBag.Title = "Product Bid";
+}
+<style>
+    /* For Chrome, Safari, and Edge */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* For Firefox */
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+
+    input[type="number"] {
+        width: 30px;
+        outline: none
+    }
+
+    .btn-hover:hover, .btn-hover:visited {
+        background-color: #2aa198;
+    }
+    .carousel-indicators [data-bs-target] {
+  background-color: #2aa198; /* Your desired color */
+  width:8px;
+  height:8px;
+  border-radius: 50%;
+}
+
+.carousel-indicators .active {
+  background-color: #073642; /* Active indicator color */
+    }
+
+</style>
+<form id="placeBidForm" method="post">
+    <div class="card shadow-lg border-dark-subtle mt-4">
+        <div class="card-header bg-success bg-gradient text-light py-4">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h3 class="text-light fw-bold text-uppercase">Product Details</h3>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="pt-3 me-2">
+                <div class="row">
+                    <div class="col-12 col-md-3">
+                        @if (Model.Product?.ProductImageList != null && Model.Product.ProductImageList.Any())
+                        {
+                            <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-indicators">
+                                    @foreach (var item in Model.Product.ProductImageList.Select((image, index) => new { Image = image, Index = index }))
+                                    {
+                                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@item.Index"
+                                                class="@((item.Index==0)?"active":"")" aria-current="true" aria-label="Slide 1"></button>
+                                    }
+                                </div>
+                                <div class="carousel-inner">
+                                    @foreach (var item in Model.Product.ProductImageList.Select((image, index) => new { Image = image, Index = index }))
+                                    {
+                                        <div class="@((item.Index==0)?"carousel-item active":"carousel-item")">
+                                            <img src="@item.Image.ImageURL" class="bg-white rounded d-block w-100" alt="..." style="height:400px;object-fit:contain">
+                                        </div>
+                                    }
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                                    <i class="bi bi-arrow-left"></i>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                                    <i class="bi bi-arrow-right"></i>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <img src="https://placehold.co/300x400" class="card-img-top rounded" style="height:400px;object-fit:contain" />
+                        }
+                    </div>
+                    <div class="col-12 col-md-6 p-3">
+                        <div class="row text-dark">
+                            <h1>@Model.Product?.Title</h1>
+                        </div>
+                        <hr class="text-dark" />
+                        <div class="row ps-2">
+                            <div class="text-success">
+                                <h6 class="fw-bold">Category</h6>
+                            </div>
+                            <div class="text-dark">
+                                @Model.Product?.Category?.Name
+                            </div>
+                        </div>
+                        <hr class="text-dark"/>
+                        <div class="row ps-2">
+                            <div class="ms-1 text-dark" id="currentBid">
+                                Current Bid: @((Model.MaxBid != 0.0) ? Model.MaxBid.ToString("c", new CultureInfo("ur-PK")) : Model.Product?.DiscountPrice.ToString("c", new CultureInfo("ur-PK")))
+                                <input type="hidden" id="maxBidValue" value="@((Model.MaxBid != 0.0) ? Model.MaxBid :Model.Product?.DiscountPrice)" />
+                            </div>
+                            @if (@Model.Bid != null)
+                            {
+                                <div class="d-flex flex-wrap">
+                                    <input asp-for="@Model.Bid.BidPrice" class="text-center rounded mb-2 me-2" id="bidInput" type="number" value="" placeholder="Place your max Bid"
+                                           style="width: 100%; max-width: 140px;" />
+                                    <input type="button" data-product-id="@Model.Product?.Id" id="placeBid" class="btn btn-hover bg-gradient-right text-light mb-2 me-2" value="Place Bid" disabled />
+                                    <div class="d-flex align-items-center mb-2 ms-1 text-dark" id="countdown"></div>
+                                </div>
+                                <div>
+                                    <span asp-validation-for="@Model.Bid.BidPrice" class="text-danger ps-2" id="validationMessage"></span>
+                                </div>
+                            }
+                        </div>
+                        @if (User.IsInRole(StaticValues.Role_Admin))
+                        {
+                            <hr class="text-dark" />
+                            <div class="row ps-2">
+                                <div class="d-flex flex-wrap">
+                                    <div>
+                                        <div class="ms-1 text-dark">
+                                            Auction Start Time:
+                                        </div>
+                                        <input type="datetime-local" class="rounded mb-2 me-2" style="width: 100%; max-width: 165px;" id="startTargetDateInput" />
+                                    </div>
+                                    <div>
+                                        <div class="ms-1 text-dark">
+                                            Auction End Time:
+                                        </div>
+                                        <input type="datetime-local" class="rounded mb-2 me-2" style="width: 100%; max-width: 165px;" id="endTargetDateInput" />
+                                    </div>
+                                    <div class="d-flex align-items-end">
+                                        <a class="btn btn-hover bg-gradient-right mb-2" data-product-id="@Model.Product?.Id" id="startCountdown">Set Time</a>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-danger ps-2" id="dateValidationMessage"></span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    @*chat*@
+                    <div class="col-12 col-md-3 d-flex flex-column justify-content-end border border-1 border-dark p-2" style="height:416px">
+                        <div class="overflow-y-auto p-2" id="chat">
+                        </div>
+                        <div class="d-flex align-items-end">
+                            <textarea type="text" class="rounded w-100 me-2 align-content-center ps-2" id="messageInput" placeholder="Enter your message" rows="1" style="resize: none;overflow:hidden;min-height:38px;max-height: 380px;"></textarea>
+                            <input type="button" value="Send" data-product-id="@Model.Product?.Id" class="btn bg-gradient-right btn-hover ms-auto" id="sendButton" />
+                        </div>
+                        <div>
+                            <span class="text-danger ps-2" id="msgValidation"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="text-dark" />
+            <div class="row mx-3 mb-3">
+                <div class="text-success">
+                    <h1>Description</h1>
+                </div>
+                <hr class="text-dark" />
+                <div class="fs-5 text-dark">
+                    @Model.Product?.Description
+                </div>
+            </div>
+        </div>
+        
+
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        
+        document.getElementById('placeBid').addEventListener('click', function () {
+            const productId = placeBid.dataset.productId;
+            ValidateAndPlaceBid(productId);
+        });
+
+        function ValidateAndPlaceBid(productId) {
+            const isAuthenticated = @User.Identity?.IsAuthenticated.ToString().ToLower();
+            if (!isAuthenticated) {
+                window.location.href = '/Identity/Account/Login';
+                return;
+            }
+            const input = document.getElementById('bidInput');
+            const bidValue = parseFloat(input.value);
+            const validationMessage = document.getElementById('validationMessage');
+
+            const maxBidValue = document.getElementById('maxBidValue');
+
+            const maxBid = parseFloat(maxBidValue.value);
+            if (bidValue <= maxBid) {
+                validationMessage.textContent = "The Bid Price must be greater than current bid.";
+                return;
+            }
+            if ((bidValue - maxBid) < 50) {
+                validationMessage.textContent = "The minimum Bid Price must be greater than 50 from current bid.";
+                return;
+            }
+            if (isNaN(bidValue) && validationMessage.textContent == "") {
+                validationMessage.textContent = "The Bid Price: field is required.";
+                return;
+            }
+            if (validationMessage.textContent == "") {
+                PlaceBid(productId, bidValue);
+            }
+        }
+
+        //const targetDate = new Date('2025-01-07T00:00:00').getTime();
+
+        let targetDate = null;
+        let countdownInterval = null;
+
+        let startTargetDate = '@((Model.CountDownTarget?.StartTargetDate != null) ? Model.CountDownTarget.StartTargetDate : "")';
+        let endTargetDate = '@((Model.CountDownTarget?.EndTargetDate != null) ? Model.CountDownTarget.EndTargetDate : "")';
+
+        startTargetDate = startTargetDate ? new Date(startTargetDate).getTime() : null;
+        if (startTargetDate != null && startTargetDate > new Date().getTime()) {
+            targetDate = startTargetDate;
+            countdownInterval = setInterval(updateCountdown, 1000);
+            updateCountdown();
+        }
+        if (startTargetDate <= new Date().getTime()) {
+            endTargetDate = endTargetDate ? new Date(endTargetDate).getTime() : null;
+            if (endTargetDate != null && endTargetDate > new Date().getTime()) {
+                targetDate = endTargetDate;
+                countdownInterval = setInterval(updateCountdown, 1000);
+                document.getElementById('placeBid').disabled = false;
+                updateCountdown();
+            }
+        }
+
+        if (@User.IsInRole(StaticValues.Role_Admin).ToString().ToLower()) {
+            document.getElementById('startCountdown').addEventListener('click', function () {
+                const startTargetDateString = document.getElementById('startTargetDateInput').value;
+                const endTargetDateString = document.getElementById('endTargetDateInput').value;
+                const productId = startCountdown.dataset.productId;
+                const dateValidationMessage = document.getElementById('dateValidationMessage');
+                if (!startTargetDateString && !endTargetDateString) {
+                    dateValidationMessage.textContent = "Both Start and End Dates are required.";
+                    return;
+                }
+                if (!startTargetDateString) {
+                    dateValidationMessage.textContent = "The Start Date is required.";
+                    return;
+                }
+                if (!endTargetDateString) {
+                    dateValidationMessage.textContent = "The End Date is required.";
+                    return;
+                }
+                targetDate = new Date(startTargetDateString);
+                if (isNaN(targetDate.getTime())) {
+                    alert("Invalid date selected!");
+                    return;
+                }
+                const targetDate2 = new Date(endTargetDateString);
+                if (isNaN(targetDate2.getTime())) {
+                    alert("Invalid date selected!");
+                    return;
+                }
+                CountDownTarget(targetDate, targetDate2, productId);
+                countdownInterval = setInterval(updateCountdown, 1000);
+                updateCountdown();
+            });
+        }
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const timeRemaining = targetDate - now;
+
+            if (timeRemaining <= 0) {
+                clearInterval(countdownInterval);
+                endTargetDate = endTargetDate ? new Date(endTargetDate).getTime() : null;
+                if (endTargetDate != null && endTargetDate > new Date().getTime()) {
+                    targetDate = endTargetDate;
+                    countdownInterval = setInterval(updateCountdown, 1000);
+                    document.getElementById('placeBid').disabled = false;
+                    updateCountdown();
+                } else {
+                    document.getElementById('countdown').textContent = "";
+                    document.getElementById('placeBid').disabled = true;
+                }
+                return;
+            }
+
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+            document.getElementById('countdown').textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+        //chat-messageInput
+        document.getElementById('messageInput').addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+        // chat send button
+        document.getElementById('sendButton').addEventListener('click', function () {
+            const isAuthenticated = @User.Identity?.IsAuthenticated.ToString().ToLower();
+            if (!isAuthenticated) {
+                window.location.href = '/Identity/Account/Login';
+                return;
+            }
+            const productId = this.dataset.productId;
+            const validationMessage = document.getElementById('msgValidation');
+            const messageInput = document.getElementById('messageInput');
+            const msgInput = messageInput.value;
+            if (msgInput.trim() === "") {
+                validationMessage.textContent = "The field must not be empty.";
+                messageInput.value = "";
+                return;
+            } 
+            validationMessage.textContent = "";
+            connection.invoke("Received", msgInput, parseInt(productId));
+            messageInput.value = "";
+            messageInput.style.height = 'auto';
+            messageInput.style.height = this.scrollHeight + 'px';
+        });
+        //chat message input
+        document.getElementById('messageInput').addEventListener('input', function () {
+            const validationMessage = document.getElementById('msgValidation');
+            const messageInput = document.getElementById('messageInput');
+            const msgInput = messageInput.value;
+            if (msgInput.trim() !== "") {
+                validationMessage.textContent = "";
+            }
+        });
+        /*SignalR*/
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/updateBidSystem")
+            .build();
+        //chat
+        connection.on("Received", (messageInput,productId) => {
+           
+            if (productId == @Model.Product?.Id) {
+                const chat = document.getElementById('chat');
+                chat.innerHTML += messageInput + "<br>";
+            }
+        });
+        //Place Bid
+        connection.on("PlaceBid", (bid) => {
+            const formattedBidPrice = new Intl.NumberFormat("ur-PK", {
+                style: "currency",
+                currency: "PKR"
+            }).format(bid.bidPrice);
+            document.getElementById("currentBid").textContent = `Current Bid: ${formattedBidPrice}`;
+            document.getElementById("currentBid").innerHTML += `<input type="hidden" id="maxBidValue" value="${bid.bidPrice}" />`;
+        });
+        //Count Down Time
+        connection.on("CountDown", (countDownTarget) => {
+            let targetDate = null;
+            let countdownInterval = null;
+
+            let startTargetDate = countDownTarget.startTargetDate;
+            let endTargetDate = countDownTarget.endTargetDate;
+
+            startTargetDate = startTargetDate ? new Date(startTargetDate).getTime() : null;
+            if (startTargetDate != null && startTargetDate > new Date().getTime()) {
+                targetDate = startTargetDate;
+                countdownInterval = setInterval(updateCountdown, 1000);
+                updateCountdown();
+            }
+            if (startTargetDate <= new Date().getTime()) {
+                endTargetDate = endTargetDate ? new Date(endTargetDate).getTime() : null;
+                if (endTargetDate != null && endTargetDate > new Date().getTime()) {
+                    targetDate = endTargetDate;
+                    countdownInterval = setInterval(updateCountdown, 1000);
+                    document.getElementById('placeBid').disabled = false;
+                    updateCountdown();
+                }
+            }
+
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const timeRemaining = targetDate - now;
+
+                if (timeRemaining <= 0) {
+                    clearInterval(countdownInterval);
+                    endTargetDate = endTargetDate ? new Date(endTargetDate).getTime() : null;
+                    if (endTargetDate != null && endTargetDate > new Date().getTime()) {
+                        targetDate = endTargetDate;
+                        countdownInterval = setInterval(updateCountdown, 1000);
+                        document.getElementById('placeBid').disabled = false;
+                        updateCountdown();
+                    } else {
+                        document.getElementById('countdown').textContent = "";
+                        document.getElementById('placeBid').disabled = true;
+                    }
+                    return;
+                }
+
+                const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+                document.getElementById('countdown').textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }
+        });
+        connection.start().catch(err => console.error(err.toString()));
+        window.addEventListener("beforeunload", () => {
+            connection.stop().catch(err => console.error(err.toString()));
+        });
+    </script>
+}
