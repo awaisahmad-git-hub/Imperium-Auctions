@@ -19,12 +19,12 @@
         @if (Model.RequirePassword)
         {
             <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Please enter your password." />
-                <label asp-for="Input.Password" class="form-label text-black-50"></label>
+                <input asp-for="Input.Password" class="form-control form-input-style" autocomplete="current-password" aria-required="true" placeholder="Please enter your password." />
+                <label asp-for="Input.Password" class="form-label text-success"></label>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
         }
-        <button class="w-100 btn btn-lg btn-danger" type="submit">Delete data and close my account</button>
+        <button class="w-100 btn btn-lg text-light shadow-none" style="background-color:#DC143C" type="submit">Delete data and close my account</button>
     </form>
 </div>
 

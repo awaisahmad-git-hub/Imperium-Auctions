@@ -30,7 +30,7 @@ namespace PrestigeAuction.Repository
             _dbSet.RemoveRange(entity);
         }
 
-        public T Get(Expression<Func<T, bool>> filter, string? includeProperty = null)
+        public T? Get(Expression<Func<T, bool>> filter, string? includeProperty = null)
         {
             IQueryable<T> query = _dbSet.Where(filter);     //  _context.Categories.Where(u=>u.Id==id)
             

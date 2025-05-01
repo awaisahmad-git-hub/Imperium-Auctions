@@ -20,19 +20,18 @@
         outline: none
     }
 
-    .btn-hover:hover, .btn-hover:visited {
-        background-color: #2aa198;
-    }
     .carousel-indicators [data-bs-target] {
-  background-color: #2aa198; /* Your desired color */
-  width:8px;
-  height:8px;
-  border-radius: 50%;
-}
-
-.carousel-indicators .active {
-  background-color: #073642; /* Active indicator color */
+        background-color: #2aa198; /* Your desired color */
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
     }
+
+    .carousel-indicators .active {
+        background-color: #073642; /* Active indicator color */
+    }
+
+ 
 
 </style>
 <form id="placeBidForm" method="post">
@@ -44,27 +43,26 @@
                 </div>
             </div>
         </div>
-        
         <div class="card-body">
             <div class="pt-3 me-2">
                 <div class="row">
                     <div class="col-12 col-md-3">
-                        @if (Model.Product?.ProductImageList != null && Model.Product.ProductImageList.Any())
+                        @if (Model.Product?.ProductImageList is not null && Model.Product.ProductImageList.Any())
                         {
-                            <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+                            <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">                              
+                                <div class="carousel-inner">
+                                    @foreach (var item in Model.Product.ProductImageList.Select((image, index) => new { Image = image, Index = index }))
+                                    {
+                                        <div class="@((item.Index==0)?"carousel-item active":"carousel-item")">
+                                            <img src="@item.Image.ImageURL" class="rounded d-block" alt="..." style="height:400px;max-width:100%;object-fit:contain">
+                                        </div>
+                                    }
+                                </div>
                                 <div class="carousel-indicators">
                                     @foreach (var item in Model.Product.ProductImageList.Select((image, index) => new { Image = image, Index = index }))
                                     {
                                         <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@item.Index"
                                                 class="@((item.Index==0)?"active":"")" aria-current="true" aria-label="Slide 1"></button>
-                                    }
-                                </div>
-                                <div class="carousel-inner">
-                                    @foreach (var item in Model.Product.ProductImageList.Select((image, index) => new { Image = image, Index = index }))
-                                    {
-                                        <div class="@((item.Index==0)?"carousel-item active":"carousel-item")">
-                                            <img src="@item.Image.ImageURL" class="bg-white rounded d-block w-100" alt="..." style="height:400px;object-fit:contain">
-                                        </div>
                                     }
                                 </div>
                                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
@@ -95,11 +93,11 @@
                                 @Model.Product?.Category?.Name
                             </div>
                         </div>
-                        <hr class="text-dark"/>
+                        <hr class="text-dark" />
                         <div class="row ps-2">
                             <div class="ms-1 text-dark" id="currentBid">
-                                Current Bid: @((Model.MaxBid != 0.0) ? Model.MaxBid.ToString("c", new CultureInfo("ur-PK")) : Model.Product?.DiscountPrice.ToString("c", new CultureInfo("ur-PK")))
-                                <input type="hidden" id="maxBidValue" value="@((Model.MaxBid != 0.0) ? Model.MaxBid :Model.Product?.DiscountPrice)" />
+                                Current Bid: @((Model.MaxBid != 0.0) ? Model.MaxBid.ToString("c", new CultureInfo("ur-PK")) : Model.Product?.StartingPrice.ToString("c", new CultureInfo("ur-PK")))
+                                <input type="hidden" id="maxBidValue" value="@((Model.MaxBid != 0.0) ? Model.MaxBid :Model.Product?.StartingPrice)" />
                             </div>
                             @if (@Model.Bid != null)
                             {
@@ -162,11 +160,12 @@
                 </div>
                 <hr class="text-dark" />
                 <div class="fs-5 text-dark">
-                    @Model.Product?.Description
+
+                    <pre style="white-space:pre-wrap;text-align:justify">@Model.Product?.Description</pre>
                 </div>
             </div>
         </div>
-        
+
 
     </div>
 </form>
@@ -174,7 +173,7 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        
+
         document.getElementById('placeBid').addEventListener('click', function () {
             const productId = placeBid.dataset.productId;
             ValidateAndPlaceBid(productId);
@@ -222,9 +221,10 @@
         if (startTargetDate != null && startTargetDate > new Date().getTime()) {
             targetDate = startTargetDate;
             countdownInterval = setInterval(updateCountdown, 1000);
+            document.getElementById('placeBid').disabled = true;
             updateCountdown();
         }
-        if (startTargetDate <= new Date().getTime()) {
+        else {
             endTargetDate = endTargetDate ? new Date(endTargetDate).getTime() : null;
             if (endTargetDate != null && endTargetDate > new Date().getTime()) {
                 targetDate = endTargetDate;
@@ -252,6 +252,14 @@
                     dateValidationMessage.textContent = "The End Date is required.";
                     return;
                 }
+                if (startTargetDateString >= endTargetDateString) {
+                    dateValidationMessage.textContent = "The Start Date must be earlier than the End Date.";
+                    return;
+                }
+                if (startTargetDateString > new Date().getTime()) {
+                    document.getElementById('placeBid').disabled = true;
+                    return;
+                }
                 targetDate = new Date(startTargetDateString);
                 if (isNaN(targetDate.getTime())) {
                     alert("Invalid date selected!");
@@ -262,6 +270,12 @@
                     alert("Invalid date selected!");
                     return;
                 }
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                }
+                dateValidationMessage.textContent = "";
+                document.getElementById('startTargetDateInput').value = "";
+                document.getElementById('endTargetDateInput').value = "";
                 CountDownTarget(targetDate, targetDate2, productId);
                 countdownInterval = setInterval(updateCountdown, 1000);
                 updateCountdown();
@@ -294,10 +308,15 @@
 
             document.getElementById('countdown').textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
-        //chat-messageInput
+        //chat message input
         document.getElementById('messageInput').addEventListener('input', function () {
             this.style.height = 'auto';
             this.style.height = this.scrollHeight + 'px';
+            const validationMessage = document.getElementById('msgValidation');
+            const msgInput = this.value;
+            if (msgInput.trim() !== "") {
+                validationMessage.textContent = "";
+            }
         });
         // chat send button
         document.getElementById('sendButton').addEventListener('click', function () {
@@ -313,30 +332,25 @@
             if (msgInput.trim() === "") {
                 validationMessage.textContent = "The field must not be empty.";
                 messageInput.value = "";
+                messageInput.style.height = 'auto';
+                messageInput.style.height = this.scrollHeight + 'px';
                 return;
-            } 
-            validationMessage.textContent = "";
+            }
             connection.invoke("Received", msgInput, parseInt(productId));
             messageInput.value = "";
             messageInput.style.height = 'auto';
             messageInput.style.height = this.scrollHeight + 'px';
         });
-        //chat message input
-        document.getElementById('messageInput').addEventListener('input', function () {
-            const validationMessage = document.getElementById('msgValidation');
-            const messageInput = document.getElementById('messageInput');
-            const msgInput = messageInput.value;
-            if (msgInput.trim() !== "") {
-                validationMessage.textContent = "";
-            }
-        });
+
+
         /*SignalR*/
+
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/updateBidSystem")
             .build();
         //chat
-        connection.on("Received", (messageInput,productId) => {
-           
+        connection.on("Received", (messageInput, productId) => {
+
             if (productId == @Model.Product?.Id) {
                 const chat = document.getElementById('chat');
                 chat.innerHTML += messageInput + "<br>";
@@ -353,8 +367,9 @@
         });
         //Count Down Time
         connection.on("CountDown", (countDownTarget) => {
-            let targetDate = null;
-            let countdownInterval = null;
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
 
             let startTargetDate = countDownTarget.startTargetDate;
             let endTargetDate = countDownTarget.endTargetDate;
@@ -363,9 +378,9 @@
             if (startTargetDate != null && startTargetDate > new Date().getTime()) {
                 targetDate = startTargetDate;
                 countdownInterval = setInterval(updateCountdown, 1000);
+                document.getElementById('placeBid').disabled = true;
                 updateCountdown();
-            }
-            if (startTargetDate <= new Date().getTime()) {
+            } else {
                 endTargetDate = endTargetDate ? new Date(endTargetDate).getTime() : null;
                 if (endTargetDate != null && endTargetDate > new Date().getTime()) {
                     targetDate = endTargetDate;

@@ -32,16 +32,16 @@ namespace PrestigeAuction.Areas.Admin.Controllers
         {
             if (!string.IsNullOrEmpty(searchString))
             {
-                IEnumerable<Product> Products = _MainRepo.ProductRepository
+                var products = _MainRepo.ProductRepository
                .GetAll(includeProperty: "Category")
-               .Where(p => (p.Category != null && p.Category.Name != null) ? p.Category.Name.ToUpper().Contains(searchString.ToUpper()) : p == null) // Filter by category
-               .ToList();
-                return View(Products);
+               .Where(p => p.Category != null && p.Category.Name != null && p.Category.Name.ToUpper().Contains(searchString.ToUpper()))
+               .OrderBy(o => o.Title);
+                return View(products);
             }
             else
             {
-                IEnumerable<Product> Products = _MainRepo.ProductRepository.GetAll(includeProperty: "Category");
-                return View(Products);
+                var products = _MainRepo.ProductRepository.GetAllOrderedByTitle(includeProperty: "Category");
+                return View(products);
             }
         }
 
@@ -52,7 +52,7 @@ namespace PrestigeAuction.Areas.Admin.Controllers
             ProductViewModel productViewModel = new ProductViewModel()
             {
                 Product = new Product(),
-                CategoryList = _MainRepo.CategoryRepository.GetAll().Select(u => new SelectListItem
+                CategoryList = _MainRepo.CategoryRepository.GetAllOrderedByName().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString()
@@ -99,7 +99,7 @@ namespace PrestigeAuction.Areas.Admin.Controllers
                     {
                         PVM.Product = _MainRepo.ProductRepository.Get(u => u.Id == PVM.Product.Id, includeProperty: "ProductImageList");
                     }
-                    PVM.CategoryList = _MainRepo.CategoryRepository.GetAll().Select(u => new SelectListItem
+                    PVM.CategoryList = _MainRepo.CategoryRepository.GetAllOrderedByName().Select(u => new SelectListItem
                     {
                         Text = u.Name,
                         Value = u.Id.ToString()
@@ -139,7 +139,7 @@ namespace PrestigeAuction.Areas.Admin.Controllers
                         ProductImage productImage = new()
                         {
                             ImageURL = @"\" + productPath + @"\" + fileName,
-                            ProductID = PVM.Product?.Id
+                            ProductID = PVM.Product?.Id ?? 0
                         };
                         if (PVM.Product?.ProductImageList == null && PVM.Product != null)
                         {
@@ -163,26 +163,19 @@ namespace PrestigeAuction.Areas.Admin.Controllers
         {
             if (id != null)
             {
-                Product? product = _MainRepo.ProductRepository.Get(c => c.Id == id, includeProperty: "ProductImageList");
+                var product = _MainRepo.ProductRepository.Get(c => c.Id == id);
                 if (product != null)
                 {
-                    if (product.ProductImageList != null)
+                    string wwwRootPath = _webHostEnvironment.WebRootPath;
+                    string imageDirectoryPath = Path.Combine(wwwRootPath, @"image\products\product-" + id);
+                    if (Directory.Exists(imageDirectoryPath))
                     {
-                        foreach (ProductImage image in product.ProductImageList)
-                        {
-                            _MainRepo.ProductImageRepository.Delete(image);
-                        }
-                        string wwwRootPath = _webHostEnvironment.WebRootPath;
-                        string imageDirectoryPath = Path.Combine(wwwRootPath, @"image\products\product-" + id);
-                        if (Directory.Exists(imageDirectoryPath))
-                        {
-                            Directory.Delete(imageDirectoryPath, true);
-                        }
+                        Directory.Delete(imageDirectoryPath, true);
                     }
                     _MainRepo.ProductRepository.Delete(product);
                     _MainRepo.Save();
-                    IQueryable<Product> Products = _MainRepo.ProductRepository.GetAll(includeProperty: "Category");
-                    return PartialView("_ProductTableBody", Products.ToList());
+                    var products = _MainRepo.ProductRepository.GetAllOrderedByTitle(includeProperty: "Category");
+                    return PartialView("_ProductTableBody", products);
                 }
             }
             return NotFound();
@@ -191,7 +184,7 @@ namespace PrestigeAuction.Areas.Admin.Controllers
         {
             if (id != null)
             {
-                ProductImage productImage = _MainRepo.ProductImageRepository.Get(c => c.ImageID == id);
+                var productImage = _MainRepo.ProductImageRepository.Get(c => c.ImageID == id);
                 if (productImage != null)
                 {
                     if (!string.IsNullOrEmpty(productImage.ImageURL))
@@ -221,18 +214,19 @@ namespace PrestigeAuction.Areas.Admin.Controllers
         }
         public IActionResult SearchProduct(string? searchString)
         {
-            IQueryable<Product> Products;
+            IOrderedQueryable<Product> products;
             if (!string.IsNullOrEmpty(searchString))
             {
-                Products = _MainRepo.ProductRepository
+                products = _MainRepo.ProductRepository
                .GetAll(includeProperty: "Category")
-               .Where(p => (p.Category != null && p.Category.Name != null) ? p.Category.Name.ToUpper().Contains(searchString.ToUpper()) : p == null);
+               .Where(p => p.Category != null && p.Category.Name != null && p.Category.Name.ToUpper().Contains(searchString.ToUpper()))
+               .OrderBy(o => o.Title);
             }
             else
             {
-                Products = _MainRepo.ProductRepository.GetAll(includeProperty: "Category");
+                products = _MainRepo.ProductRepository.GetAllOrderedByTitle(includeProperty: "Category");
             }
-            return PartialView("_ProductTableBody", Products.ToList());
+            return PartialView("_ProductTableBody", products);
         }
         #endregion
     }

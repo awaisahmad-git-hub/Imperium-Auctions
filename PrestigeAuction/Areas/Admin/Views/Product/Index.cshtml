@@ -1,31 +1,28 @@
 ﻿@model IEnumerable<Product>
-<style>
-    .scrollbar-color {
-        scrollbar-color: #2aa198 #002b36; /* thumb color and track color */
-        scrollbar-width: thin; /* Width of the scrollbar (auto, thin, or none) */
-    }
-</style>
-<div class="row py-4">
-    <div class="col-6 text-center">
-        <input class="rounded ps-2" placeholder="Search by Category" id="searchInput" />
-    </div>
-    <div class="col-6 text-center pe-5">
-        <a asp-controller="Product" asp-action="CreateUpdate" class="btn bg-gradient-right btn-hover"><i class="bi bi-plus-circle"></i> Create Product</a>
-    </div>
-</div>
 
-<div class="row justify-content-center table-responsive scrollbar-color">
-    <div class="col-8" style="height:500px;overflow-x:auto">
-        <table class="table caption-top table-bordered table-striped border-dark table-light" style="table-layout:fixed;width:800px">
+<div class="row justify-content-center">
+    <div class="col-sm-9 py-4">
+        <div class="d-flex justify-content-between">
+            <div>
+                <input class="input-outline-remove border-dark rounded ps-2 h-100" placeholder="Search by Category" id="searchInput" />
+            </div>
+            <div>
+                <a asp-controller="Product" asp-action="CreateUpdate" class="btn bg-gradient-right btn-hover"><i class="bi bi-plus-circle"></i> Create Product</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-9 overflow-x-auto scrollbar-color" style="height: 500px;">
+        <table class="table caption-top table-bordered table-striped border-dark table-light" style="table-layout:fixed">
             <caption><h2 class="text-success fw-bold">Product List</h2></caption>
             <thead>
                 <tr>
-                    <th>Product Title</th>
-                    <th>Description</th>
-                    <th>SKU</th>
-                    <th>Price</th>
-                    <th>Category</th>
-                    <th></th>
+                    <th style="width:50px">No.</th>
+                    <th style="width:135px">Product Title</th>
+                    <th style="width:135px">Description</th>
+                    <th style="width:135px">SKU</th>
+                    <th style="width:135px">Starting Price</th>
+                    <th style="width:135px">Category</th>
+                    <th style="width:135px"></th>
                 </tr>
             </thead>
             <tbody id="productTbody">

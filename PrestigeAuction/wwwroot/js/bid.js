@@ -1,14 +1,12 @@
-﻿
-function PlaceBid(productId, bidValue) {
-    //const placeBidForm = document.getElementById('placeBidForm');
+﻿function PlaceBid(productId, bidValue) {
     Swal.fire({
         title: "Are you sure?",
         text: "You won't be able to revert this!",
         icon: "warning",
-        background: "#002b36",
-        color: "white",
+        background: "#fdf6e3",
+        color: "dark",
         showCancelButton: true,
-        confirmButtonColor: "#d33",
+        confirmButtonColor: "#DC143C",
         cancelButtonColor: "#2aa198",
         confirmButtonText: "Yes, do it!"
     }).then((result) => {
@@ -19,10 +17,7 @@ function PlaceBid(productId, bidValue) {
                         "positionClass": "toast-top-center",
                         "timeOut": "1000",
                     }
-                    toastr.success(response.data.message);
-                    //currentBid.innerHTML = response.data;
-                    //placeBidForm.submit();  
-                    //location.reload();                   
+                    toastr.success(response.data.message); 
                 }).catch(error => {
                     console.log(error);
                     alert('There was an error placing the bid:', error);

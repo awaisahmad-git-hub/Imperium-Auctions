@@ -27,6 +27,7 @@ namespace PrestigeAuction.Migrations
                         column: x => x.ProductID,
                         principalTable: "Products",
                         principalColumn: "Id");
+
                 });
 
             migrationBuilder.CreateIndex(

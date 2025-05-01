@@ -46,9 +46,7 @@ namespace PrestigeAuction.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "nvarchar(max)");
-            migrationBuilder.DropForeignKey(
-                name: "FK_Bids_AspNetUsers_UserId",
-                table: "Bids");
+
             migrationBuilder.AlterColumn<string>(
                 name: "UserId",
                 table: "Bids",
@@ -57,12 +55,7 @@ namespace PrestigeAuction.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "nvarchar(450)");
-            migrationBuilder.AddForeignKey(
-                name: "FK_Bids_AspNetUsers_UserId",
-                table: "Bids",
-                column: "UserId",
-                principalTable: "AspNetUsers",
-                principalColumn: "Id");
+
             migrationBuilder.AlterColumn<Guid>(
                 name: "BidID",
                 table: "Bids",

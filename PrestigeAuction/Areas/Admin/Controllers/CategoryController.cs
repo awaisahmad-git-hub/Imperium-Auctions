@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using PrestigeAuction.Data;
 using PrestigeAuction.Models;
@@ -8,19 +9,29 @@ using PrestigeAuction.Utility;
 namespace PrestigeAuction.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles =StaticValues.Role_Admin)]
+    [Authorize(Roles = StaticValues.Role_Admin)]
     public class CategoryController : Controller
     {
         private readonly IMainRepository _MainRepo;
-        public CategoryController(IMainRepository MainRepo)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public CategoryController(IMainRepository MainRepo, IWebHostEnvironment webHostEnvironment)
         {
             _MainRepo = MainRepo;
+            _webHostEnvironment = webHostEnvironment;
         }
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         [HttpGet("admin/product-categories")]
-        public IActionResult Index()
+        public IActionResult Index(string? searchString)
         {
-            IEnumerable<Category> categories = _MainRepo.CategoryRepository.GetAll();
+            IOrderedQueryable<Category> categories;
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                categories = _MainRepo.CategoryRepository
+                 .GetAll().Where(p => p.Name != null && p.Name.ToUpper().Contains(searchString.ToUpper()))
+                 .OrderBy(o=>o.Name);
+                return View(categories);
+            }
+            categories = _MainRepo.CategoryRepository.GetAllOrderedByName();
             return View(categories);
         }
         public IActionResult Create()
@@ -49,7 +60,7 @@ namespace PrestigeAuction.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            Category? category = _MainRepo.CategoryRepository.Get(c => c.Id == id);
+            var category = _MainRepo.CategoryRepository.Get(c => c.Id == id);
             if (category == null)
             {
                 return RedirectToAction("Index", "Category");
@@ -59,7 +70,7 @@ namespace PrestigeAuction.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Edit(Category category)
         {
-            if (category.Name == category.DisplayOrder.ToString())
+            if (string.Equals(category.Name,category.DisplayOrder.ToString(),StringComparison.OrdinalIgnoreCase))
             {
                 ModelState.AddModelError("Name", "Both fields don't be same.");
             }
@@ -72,31 +83,43 @@ namespace PrestigeAuction.Areas.Admin.Controllers
             }
             return View();
         }
-        public IActionResult Delete(int? id)
+
+        #region Api methods
+        public IActionResult DeleteCategory(int? id)
         {
-            if (id == null || id == 0)
+            if (id is null) return BadRequest();
+            var category = _MainRepo.CategoryRepository.Get(c => c.Id == id, includeProperty: "ProductList");
+            if (category is null) return NotFound();
+            if (category.ProductList.Any())
             {
-                return NotFound();
-            }
-            Category? category = _MainRepo.CategoryRepository.Get(c => c.Id == id);
-            if (category == null)
-            {
-                return RedirectToAction("Index", "Category");
-            }
-            return View(category);
-        }
-        [HttpPost, ActionName("Delete")]
-        public IActionResult DeletePost(int? id)
-        {
-            Category? category = _MainRepo.CategoryRepository.Get(c => c.Id == id);
-            if (category == null)
-            {
-                return NotFound();
+                string wwwRootPath = _webHostEnvironment.WebRootPath;
+                foreach (var product in category.ProductList)
+                {
+                    string imageDirectoryPath = Path.Combine(wwwRootPath, @"image\products\product-" + product.Id);
+                    if (Directory.Exists(imageDirectoryPath))
+                    {
+                        Directory.Delete(imageDirectoryPath, true);
+                    }
+                }
             }
             _MainRepo.CategoryRepository.Delete(category);
             _MainRepo.Save();
-            TempData["success"] = "Deleted successfully";
-            return RedirectToAction("Index", "Category");
+            var categories = _MainRepo.CategoryRepository.GetAllOrderedByName();
+            return PartialView("_CategoryTableBody", categories.ToList());
         }
+        public IActionResult SearchCategory(string? searchString)
+        {
+            IOrderedQueryable<Category> categories;
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                categories = _MainRepo.CategoryRepository
+               .GetAll()
+               .Where(p => p.Name != null && p.Name.ToUpper().Contains(searchString.ToUpper())).OrderBy(o => o.Name);
+                return PartialView("_CategoryTableBody", categories);
+            }
+            categories = _MainRepo.CategoryRepository.GetAllOrderedByName();
+            return PartialView("_CategoryTableBody", categories);
+        }
+        #endregion
     }
 }

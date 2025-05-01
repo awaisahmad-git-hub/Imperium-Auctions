@@ -12,10 +12,22 @@ if (homeCategoryMenu) {
             }
             const searchString = e.target.dataset.category;
             const homeProducts = document.getElementById('homeProducts');
-            axios.get('/User/Home/SearchHomeProduct', { params: { searchString: searchString } })
+            axios.get('/User/Home/SearchHomeProductByCategory', { params: { searchString: searchString } })
                 .then(response => {
                     homeProducts.innerHTML = response.data;
                 });
         }
+    });
+}
+/* search product by name in home page */
+const homeSearchInput = document.getElementById('homeSearchButton');
+if (homeSearchInput) {
+    homeSearchInput.addEventListener('click', function () {
+        const searchString = document.getElementById('homeSearchInput').value;
+        axios.get('/User/Home/SearchHomeProductByName', { params: { searchString: searchString } }).then(response => {
+            homeProducts.innerHTML = response.data;
+        }).catch(error => {
+            alert('There was an error in searching the product:', error);
+        });
     });
 }

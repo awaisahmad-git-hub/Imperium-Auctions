@@ -40,7 +40,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Areas\Admin\Views\Category\Delete.cshtml" />
     <None Include="Areas\Admin\Views\Category\Edit.cshtml" />
     <None Include="Areas\User\Views\Home\_HomeProducts.cshtml" />
     <None Include="Views\Shared\_Notification.cshtml" />

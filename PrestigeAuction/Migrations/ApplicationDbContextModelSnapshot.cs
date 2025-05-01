@@ -252,8 +252,8 @@ namespace PrestigeAuction.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -261,7 +261,7 @@ namespace PrestigeAuction.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Bids");
+                    b.ToTable("Bids", (string)null);
                 });
 
             modelBuilder.Entity("PrestigeAuction.Models.Category", b =>
@@ -282,7 +282,7 @@ namespace PrestigeAuction.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
 
                     b.HasData(
                         new
@@ -324,9 +324,10 @@ namespace PrestigeAuction.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductID");
+                    b.HasIndex("ProductID")
+                        .IsUnique();
 
-                    b.ToTable("CountDownTargets");
+                    b.ToTable("CountDownTargets", (string)null);
                 });
 
             modelBuilder.Entity("PrestigeAuction.Models.Product", b =>
@@ -343,16 +344,13 @@ namespace PrestigeAuction.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("DiscountPrice")
-                        .HasColumnType("float");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
-
                     b.Property<string>("SKU")
                         .IsRequired()
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
+
+                    b.Property<double>("StartingPrice")
+                        .HasColumnType("float");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -363,7 +361,7 @@ namespace PrestigeAuction.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
 
                     b.HasData(
                         new
@@ -371,9 +369,8 @@ namespace PrestigeAuction.Migrations
                             Id = 1,
                             CategoryId = 2,
                             Description = "Oppo a37",
-                            DiscountPrice = 80.0,
-                            Price = 100.0,
                             SKU = "1234_oppo",
+                            StartingPrice = 100.0,
                             Title = "Oppo"
                         },
                         new
@@ -381,9 +378,8 @@ namespace PrestigeAuction.Migrations
                             Id = 2,
                             CategoryId = 2,
                             Description = "Redmi 9c",
-                            DiscountPrice = 170.0,
-                            Price = 200.0,
                             SKU = "1234_redmi",
+                            StartingPrice = 200.0,
                             Title = "Redmi"
                         },
                         new
@@ -391,9 +387,8 @@ namespace PrestigeAuction.Migrations
                             Id = 3,
                             CategoryId = 1,
                             Description = "Techno spark go",
-                            DiscountPrice = 130.0,
-                            Price = 150.0,
                             SKU = "1234_techno",
+                            StartingPrice = 150.0,
                             Title = "Techno"
                         });
                 });
@@ -411,14 +406,14 @@ namespace PrestigeAuction.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int?>("ProductID")
+                    b.Property<int>("ProductID")
                         .HasColumnType("int");
 
                     b.HasKey("ImageID");
 
                     b.HasIndex("ProductID");
 
-                    b.ToTable("ProductImages");
+                    b.ToTable("ProductImages", (string)null);
                 });
 
             modelBuilder.Entity("PrestigeAuction.Models.ApplicationUser", b =>
@@ -515,8 +510,8 @@ namespace PrestigeAuction.Migrations
             modelBuilder.Entity("PrestigeAuction.Models.CountDownTarget", b =>
                 {
                     b.HasOne("PrestigeAuction.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductID")
+                        .WithOne("CountDownTarget")
+                        .HasForeignKey("PrestigeAuction.Models.CountDownTarget", "ProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -526,7 +521,7 @@ namespace PrestigeAuction.Migrations
             modelBuilder.Entity("PrestigeAuction.Models.Product", b =>
                 {
                     b.HasOne("PrestigeAuction.Models.Category", "Category")
-                        .WithMany()
+                        .WithMany("ProductList")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -538,13 +533,22 @@ namespace PrestigeAuction.Migrations
                 {
                     b.HasOne("PrestigeAuction.Models.Product", "Product")
                         .WithMany("ProductImageList")
-                        .HasForeignKey("ProductID");
+                        .HasForeignKey("ProductID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("PrestigeAuction.Models.Category", b =>
+                {
+                    b.Navigation("ProductList");
+                });
+
             modelBuilder.Entity("PrestigeAuction.Models.Product", b =>
                 {
+                    b.Navigation("CountDownTarget");
+
                     b.Navigation("ProductImageList");
                 });
 #pragma warning restore 612, 618

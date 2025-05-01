@@ -15,6 +15,11 @@ namespace PrestigeAuction.Repository
             _context = db;
         }
 
+        public IOrderedQueryable<Product> GetAllOrderedByTitle(string? includeProperty = null)
+        {
+            return GetAll(includeProperty).OrderBy(o=>o.Title);
+        }
+
         public void Update(Product product)
         {
             var obj = _context.Products.FirstOrDefault(u => u.Id == product.Id);
@@ -23,8 +28,7 @@ namespace PrestigeAuction.Repository
                 obj.Title = product.Title;
                 obj.Description = product.Description;
                 obj.SKU = product.SKU;
-                obj.Price = product.Price;
-                obj.DiscountPrice = product.DiscountPrice;
+                obj.StartingPrice = product.StartingPrice;
                 obj.CategoryId = product.CategoryId; 
                 obj.ProductImageList = product.ProductImageList;
                 /*if (product.ImageURL != null)

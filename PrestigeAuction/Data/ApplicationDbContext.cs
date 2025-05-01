@@ -32,9 +32,9 @@ namespace PrestigeAuction.Data
                 new Category { Id = 3, Name = "Laptop", DisplayOrder = 3 }
                 );
             modelBuilder.Entity<Product>().HasData(
-                new Product { Id = 1, Title = "Oppo", Description = "Oppo a37", SKU="1234_oppo",Price=100, DiscountPrice=80,CategoryId=2 },
-                new Product { Id = 2, Title = "Redmi", Description = "Redmi 9c", SKU= "1234_redmi",Price=200, DiscountPrice = 170, CategoryId = 2},
-                new Product { Id = 3, Title = "Techno", Description = "Techno spark go", SKU= "1234_techno",Price=150, DiscountPrice = 130, CategoryId = 1}
+                new Product { Id = 1, Title = "Oppo", Description = "Oppo a37", SKU="1234_oppo",StartingPrice=100,CategoryId=2 },
+                new Product { Id = 2, Title = "Redmi", Description = "Redmi 9c", SKU= "1234_redmi",StartingPrice=200, CategoryId = 2},
+                new Product { Id = 3, Title = "Techno", Description = "Techno spark go", SKU= "1234_techno",StartingPrice =150, CategoryId = 1}
                 );
         }
     }

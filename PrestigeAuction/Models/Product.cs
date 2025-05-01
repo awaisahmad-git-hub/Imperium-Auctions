@@ -10,24 +10,19 @@ namespace PrestigeAuction.Models
         [Key]
         public int? Id { get; set; }
         [Required]
-        [DisplayName("Product Title:")]
+        [DisplayName("Product Title")]
         [StringLength(40)]
         public string? Title { get; set; }
         public string? Description { get; set; }
         [Required]
         [StringLength(40)]
-      
         public string? SKU { get; set; }
 
         [Required]
         [Range(1, double.MaxValue, ErrorMessage = "The Price must be above 0")]
+        [Display(Name = "Starting Price")]
+        public double StartingPrice { get; set; }
         
-        public double Price { get; set; }
-        [Required]
-        [Range(1, double.MaxValue, ErrorMessage = "The Price must be above 0")]
-        
-        [DisplayName("Discount Price:")]
-        public double DiscountPrice { get; set; }
         [Required]
         public int CategoryId { get; set; }
         [ForeignKey("CategoryId")]
@@ -36,6 +31,7 @@ namespace PrestigeAuction.Models
 
         [ValidateNever]
         [Display(Name = "Product Images")]
-        public List<ProductImage>? ProductImageList { get; set; }
+        public List<ProductImage>? ProductImageList { get; set; }=new List<ProductImage>();
+        public CountDownTarget? CountDownTarget { get; set; }
     }
 }

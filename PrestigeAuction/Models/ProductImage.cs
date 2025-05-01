@@ -12,7 +12,7 @@ namespace PrestigeAuction.Models
         [Required]
         [StringLength(500)]
         public string? ImageURL { get; set; }
-        public int? ProductID { get; set; }
+        public int ProductID { get; set; }
         [ForeignKey("ProductID")]
         [ValidateNever]
         public Product? Product { get; set; }

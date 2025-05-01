@@ -26,7 +26,7 @@ namespace PrestigeAuction.Areas.User.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
  
-            Bid _bid = _MainRepo.BidRepository.Get(u => u.ProductID == productId && u.UserId == userId);
+            var _bid = _MainRepo.BidRepository.Get(u => u.ProductID == productId && u.UserId == userId);
             if (_bid != null)
             {
                 _MainRepo.BidRepository.Delete(_bid);
@@ -47,8 +47,7 @@ namespace PrestigeAuction.Areas.User.Controllers
         }
         public async Task<IActionResult> CountDownTargetTime(DateTime startTargetDate, DateTime endTargetDate,int productId)
         {
-            
-            CountDownTarget _countDownTarget=_MainRepo.CountDownTargetRepository.Get(u=>u.ProductID ==productId);
+            var _countDownTarget=_MainRepo.CountDownTargetRepository.Get(u=>u.ProductID ==productId);
             if (_countDownTarget != null) { 
                 _MainRepo.CountDownTargetRepository.Delete(_countDownTarget);          
             }

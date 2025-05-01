@@ -38,7 +38,7 @@
                             <a class="btn btn-hover bg-gradient-right btn-fixed" asp-area="User" asp-controller="Home" asp-action="Index">Home</a>
                         <li class="nav-item dropdown">
                             <a class="btn btn-hover text-light bg-gradient-right btn-fixed dropdown-toggle d-flex justify-content-between align-items-center @IsHidden("Home","Index")" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Categories</a>
-                            <div class="dropdown-menu bg-gradient-right position-absolute" style="cursor:pointer" id="homeCategoryMenu">
+                            <div class="dropdown-menu bg-gradient-right position-absolute overflow-auto scrollbar-color" style="cursor:pointer;max-height:300px" id="homeCategoryMenu">
                                 <a class="dropdown-item btn-hover text-light homeCategoryMenuItem">All</a>
                                 <div class="dropdown-divider my-0"></div>
                                     @if (ViewBag.CategoryModel?.CategoryList != null)
@@ -55,8 +55,8 @@
                             <li class="nav-item dropdown">
                                 <a class="btn btn-hover bg-gradient-right text-light btn-fixed dropdown-toggle d-flex justify-content-between align-items-center" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Manage</a>
                                 <div class="dropdown-menu bg-gradient-right position-absolute">
-                                    <a class="dropdown-item btn-hover text-light @IsActive("Category","Index")" asp-area="Admin" asp-controller="Category" asp-action="Index">Category</a>
-                                    <a class="dropdown-item btn-hover text-light @IsActive("Product","Index")" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a>
+                                    <a class="dropdown-item btn-hover text-light @IsActive("Category","Index") @IsActive("Category","Create")" asp-area="Admin" asp-controller="Category" asp-action="Index">Category</a>
+                                    <a class="dropdown-item btn-hover text-light @IsActive("Product","Index") @IsActive("Product","CreateUpdate")" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a>
                                     <a class="dropdown-item btn-hover text-light @IsActive("/Account/Register")" id="register" asp-area="Identity" asp-page="/Account/Register">Create User</a>
                                 </div>
                             </li>
@@ -64,9 +64,9 @@
                     </ul>
                 </div>
             </div>
-            <div class="d-flex align-items-center z-3 me-3 gap-1 ms-auto @IsHidden("Home","Index")">
-                <input class="input-outline-remove border-dark rounded ps-2" placeholder="Search by Product Name" style="min-height:38px" />
-                <i class="bi bi-search btn bg-gradient-right btn-hover"></i>
+            <div class="d-flex align-items-stretch z-3 me-3 gap-1 ms-auto @IsHidden("Home","Index")">
+                <input class="input-outline-remove border-dark rounded ps-2" placeholder="Search by Product Name" id="homeSearchInput" />
+                <i class="bi bi-search btn bg-gradient-right btn-hover" id="homeSearchButton"></i>
             </div>
         </nav>
     </header>
@@ -108,30 +108,30 @@
                 <div class="col-sm-6 col-md-3 d-flex flex-column gap-2 mb-4">
                     <h4 class="text-light">QUICK LINKS</h4>
                     <div>
-                        <a class="text-decoration-none text-light footer-link-hover" asp-area="User" asp-controller="Home" asp-action="Index">Home</a>
+                        <a class="text-decoration-none text-light header-footer-link-hover" asp-area="User" asp-controller="Home" asp-action="Index">Home</a>
                     </div>
                     <div>
-                        <a class="text-decoration-none text-light footer-link-hover" asp-area="Identity" asp-page="/Account/Register">Register</a>
+                        <a class="text-decoration-none text-light header-footer-link-hover" asp-area="Identity" asp-page="/Account/Register">Register</a>
                     </div>
                     <div>
-                        <a class="text-decoration-none text-light footer-link-hover" asp-area="Identity" asp-page="/Account/Login">Login</a>
+                        <a class="text-decoration-none text-light header-footer-link-hover" asp-area="Identity" asp-page="/Account/Login">Login</a>
                     </div>
                     <div>
-                        <a class="text-decoration-none text-light footer-link-hover" asp-area="User" asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
+                        <a class="text-decoration-none text-light header-footer-link-hover" asp-area="User" asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
                     </div>
                 </div>
                 <div class="col-sm-6 col-md-3 text-wrap d-flex flex-column gap-2 mb-4">
                     <h4 class="text-light">CONTACT US</h4>
-                    <a class="text-decoration-none text-light footer-link-hover" href="#">+923012345678</a>
-                    <a class="text-decoration-none text-light footer-link-hover" href="#">support@prestigeauction.com</a>
+                    <a class="text-decoration-none text-light header-footer-link-hover" href="#">+923012345678</a>
+                    <a class="text-decoration-none text-light header-footer-link-hover" href="#">support@prestigeauction.com</a>
                     <span>Islamabad, Pakistan</span>
                 </div>
                 <div class="col-sm-6 col-md-3 text-wrap mb-4  ">
                     <h4 class="text-light mb-3">FOLLOW US</h4>
-                    <a class="footer-link-hover text-light me-3" href="#"><i class="bi bi-twitter-x"></i></a>
-                    <a class="footer-link-hover text-light me-3" href="#"><i class="bi bi-facebook"></i></a>
-                    <a class="footer-link-hover text-light me-3" href="#"><i class="bi bi-linkedin"></i></a>
-                    <a class="footer-link-hover text-light me-3" href="#"><i class="bi bi-instagram"></i></a>
+                    <a class="header-footer-link-hover text-light me-3" href="#"><i class="bi bi-twitter-x"></i></a>
+                    <a class="header-footer-link-hover text-light me-3" href="#"><i class="bi bi-facebook"></i></a>
+                    <a class="header-footer-link-hover text-light me-3" href="#"><i class="bi bi-linkedin"></i></a>
+                    <a class="header-footer-link-hover text-light me-3" href="#"><i class="bi bi-instagram"></i></a>
                 </div>
                 <div class="row justify-content-center mt-4">
                     <div class="col-auto">
@@ -146,6 +146,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/product.js" asp-append-version="true"></script>
+    <script src="~/js/category.js" asp-append-version="true"></script>
     <script src="~/js/bid.js" asp-append-version="true"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

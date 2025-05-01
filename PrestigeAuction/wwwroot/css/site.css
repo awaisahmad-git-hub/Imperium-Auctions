@@ -43,7 +43,7 @@ body {
 .form-floating > label::after {
     display: none !important;
     background: none !important;
-    box-shadow: none !important
+    box-shadow: none !important 
 }
 
 .form-input-style {
@@ -76,14 +76,6 @@ body {
     box-shadow: none !important
 }
 
-.swal2-cancel {
-    background: linear-gradient(to right,#2aa198, #073642) !important; /* success and dark */
-}
-
-.swal2-cancel:hover {
-    background: linear-gradient(to right,#073642, #2aa198) !important; /* dark and success */
-}
-
 .btn-hover:hover {
     background-image: linear-gradient(to left,#2aa198, #073642) !important; /* success and dark */
     color: #fdf6e3 !important; /* light */
@@ -101,12 +93,64 @@ body {
     min-width: 120px;
 }
 
-.link-hover:hover {
-    color: #073642; /* dark */
+.nav-pills .nav-link.active {
+    background-image: linear-gradient(to right,#2aa198, #073642);
+    border-radius:0
 }
 
-.footer-link-hover:hover {
+.swal2-cancel {
+    background: linear-gradient(to right,#2aa198, #073642) !important;  /* success and dark */
+}
+
+.swal2-cancel:hover {
+    background: linear-gradient(to right,#073642, #2aa198) !important;  /* dark and success */
+}
+.swal2-popup { /* Customize border color and size */
+    border: 2px solid #2aa198;
+}
+.swal2-icon.swal2-warning { /* Customize warning icon color */
+    color: #ff5722;
+    border-color: #ff5722
+}
+
+.link-hover:hover {
+    color: #073642 !important; /* dark */
+}
+
+.header-footer-link-hover:hover {
     color: #839496 !important; /* gray */
 }
 
+.scrollbar-color {
+    scrollbar-color: #2aa198 #002b36; /* scrollbar's thumb color and track color */
+    scrollbar-width: thin;
+}
 
+.btn-transition:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease-in-out;
+}
+
+.clickable-card { /* Smoothly animate any transform changes over 0.3 seconds */
+    transition: transform 0.3s;
+}
+
+    .clickable-card:hover { /* Change the size of the card on hover to show it's clickable */
+        transform: scale(0.95);
+    }
+
+.text-ellipsis { /* Truncate text with ellipsis (...) if it overflows the container */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/*.zoom-image:hover {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    max-width: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid #073642;
+    border-radius: 10px;
+    z-index: 999;
+}*/
