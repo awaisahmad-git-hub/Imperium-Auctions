@@ -35,6 +35,7 @@ body {
 
 /* my styles */
 
+
 .toast-success {
     background-color: #2aa198 !important; /* success */
 }
@@ -47,7 +48,7 @@ body {
 }
 
 .form-input-style {
-    background-color: #fdf6e3 !important; /* light */
+    background-color: #fff !important; /* white */
     border-color: #073642 !important; /* dark */
     box-shadow: none !important
 }
@@ -66,25 +67,25 @@ body {
 
 .bg-gradient-right {
     background-image: linear-gradient(to right,#2aa198, #073642);
-    color: #fdf6e3; /* light */
+    color: #fff; /* white */
     box-shadow: none !important
 }
 
 .bg-gradient-left {
     background-image: linear-gradient(to left,#2aa198, #073642);
-    color: #fdf6e3; /* light */
+    color: #fff; /* white */
     box-shadow: none !important
 }
 
 .btn-hover:hover {
     background-image: linear-gradient(to left,#2aa198, #073642) !important; /* success and dark */
-    color: #fdf6e3 !important; /* light */
+    color: #fff !important; /* white */
     box-shadow: none !important
 }
 
 .btn-hover.active {
     background-image: linear-gradient(to right, #073642,#073642) !important;
-    color: #fdf6e3 !important; /* light */
+    color: #fff !important; /* white */
     box-shadow: none !important
 }
 

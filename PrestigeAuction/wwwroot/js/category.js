@@ -9,7 +9,7 @@ if (categoryTbody) {
                 title: "Are you sure?",
                 text: "This will also delete related products, and you won't be able to revert this!",
                 icon: "warning",
-                background: "#fdf6e3",
+                background: "#fff",
                 color: "dark",
                 showCancelButton: true,
                 confirmButtonColor: "#DC143C",

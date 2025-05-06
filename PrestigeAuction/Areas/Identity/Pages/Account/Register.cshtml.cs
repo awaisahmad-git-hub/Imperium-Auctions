@@ -147,7 +147,7 @@ namespace PrestigeAuction.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-                user.Name = Input.Email;
+                user.Name = Input.ApplicationUser.Name;
                 user.PhoneNumber = Input.PhoneNumber;
                 user.Address = Input.ApplicationUser.Address;
                 user.PostalCode= Input.ApplicationUser.PostalCode;

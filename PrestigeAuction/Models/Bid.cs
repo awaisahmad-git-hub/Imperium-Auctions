@@ -34,6 +34,8 @@ namespace PrestigeAuction.Models
         [ForeignKey("UserId")]
         [ValidateNever]
         public IdentityUser? User { get; set; }
+        public bool IsBidEndNotificationSeen { get; set; }
+
     }
 }
 

@@ -1,8 +1,52 @@
 ﻿@model IEnumerable<Product>
 @{
     ViewBag.Title = "Home";
+    ViewBag.ContainerClass = "container-fluid px-0";
 }
+<style>
+    .carousel-indicators [data-bs-target] {
+        background-color: #2aa198; /* Your desired color */
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
 
-<div class="row py-4" id="homeProducts">
-    <partial name="_HomeProducts" />
+    .carousel-indicators .active {
+        background-color: #073642; /* Active indicator color */
+    }
+
+</style>
+
+<div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel" data-bs-pause="false">
+    <div class="carousel-inner" style="background-image: linear-gradient(to bottom,#2aa198, #073642)">
+        @foreach (var item in Model.Take(10).Select((image, index) => new { Image = image, Index = index }))
+        {
+            <div class="@((item.Index==0)?"carousel-item active":"carousel-item")">
+                <div class="d-flex justify-content-center w-auto">
+                    <img src="@item.Image.ProductImageList?.FirstOrDefault()?.ImageURL" class="rounded d-block img-fluid" alt="..." style="height:550px;object-fit:contain">
+                </div>
+            </div>
+        }
+    </div>
+    <div class="carousel-indicators mb-0 pb-0">
+        @foreach (var item in Model.Take(10).Select((image, index) => new { Image = image, Index = index }))
+        {
+            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@item.Index"
+                    class="@((item.Index==0)?"active":"")" aria-current="true" aria-label="Slide 1"></button>
+        }
+    </div>
+    <button class="carousel-control-prev ps-2 w-auto" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next pe-2 w-auto" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+<div class="container">
+    <div class="row pt-4" id="homeProducts">
+        <partial name="_HomeProducts" />
+    </div>
 </div>

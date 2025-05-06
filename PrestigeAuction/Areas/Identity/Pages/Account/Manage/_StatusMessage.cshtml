@@ -1,5 +1,5 @@
 ﻿@model string
-
+<div style="min-height: 60px;">
 @if (!String.IsNullOrEmpty(Model))
 {
     var statusMessageClass = Model.StartsWith("Error") ? "danger" : "success";
@@ -8,3 +8,4 @@
         @Model
     </div>
 }
+</div>

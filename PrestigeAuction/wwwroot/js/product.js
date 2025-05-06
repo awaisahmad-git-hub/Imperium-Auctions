@@ -9,7 +9,7 @@ if (tbody) {
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
                 icon: "warning",
-                background: "#fdf6e3",
+                background: "#fff",
                 color: "dark",
                 showCancelButton: true,
                 confirmButtonColor: "#DC143C",

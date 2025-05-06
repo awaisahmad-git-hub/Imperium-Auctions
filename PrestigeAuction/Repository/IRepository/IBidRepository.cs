@@ -8,6 +8,7 @@ namespace PrestigeAuction.Repository.IRepository
         void Update(Bid bid);
         Task SaveA();
         Task<double> MaxBid(int? id);
+        Task<double> CurrentUserMaxBid(int? id, string? currentUserId);
 
         //IQueryable<ProductImage> GetAllImages(Expression<Func<ProductImage, bool>> filter);
     }

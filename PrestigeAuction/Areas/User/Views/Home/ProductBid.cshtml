@@ -1,4 +1,4 @@
-﻿@model Product_Bid_MaxBid_CountDownTargetViewModel
+﻿@model BidViewModel
 @{
     ViewBag.Title = "Product Bid";
 }
@@ -31,15 +31,13 @@
         background-color: #073642; /* Active indicator color */
     }
 
- 
-
 </style>
 <form id="placeBidForm" method="post">
     <div class="card shadow-lg border-dark-subtle mt-4">
-        <div class="card-header bg-success bg-gradient text-light py-4">
+        <div class="card-header bg-success bg-gradient text-white py-4">
             <div class="row">
                 <div class="col-12 text-center">
-                    <h3 class="text-light fw-bold text-uppercase">Product Details</h3>
+                    <h3 class="text-white text-uppercase">Place Bid</h3>
                 </div>
             </div>
         </div>
@@ -49,7 +47,7 @@
                     <div class="col-12 col-md-3">
                         @if (Model.Product?.ProductImageList is not null && Model.Product.ProductImageList.Any())
                         {
-                            <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">                              
+                            <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-inner">
                                     @foreach (var item in Model.Product.ProductImageList.Select((image, index) => new { Image = image, Index = index }))
                                     {
@@ -94,23 +92,52 @@
                             </div>
                         </div>
                         <hr class="text-dark" />
+                        @{
+                            var maxBid = (Model.MaxBid != 0.0) ? Model.MaxBid.ToString("Rs #,##0", new CultureInfo("ur-PK")) : Model.Product?.StartingPrice.ToString("Rs #,##0", new CultureInfo("ur-PK"));
+                            var currentUserMaxBid = (Model.CurrentUserMaxBid != 0.0) ? Model.CurrentUserMaxBid.ToString("Rs #,##0", new CultureInfo("ur-PK")) : Model.Product?.StartingPrice.ToString("Rs #,##0", new CultureInfo("ur-PK"));
+                        }
                         <div class="row ps-2">
                             <div class="ms-1 text-dark" id="currentBid">
-                                Current Bid: @((Model.MaxBid != 0.0) ? Model.MaxBid.ToString("c", new CultureInfo("ur-PK")) : Model.Product?.StartingPrice.ToString("c", new CultureInfo("ur-PK")))
-                                <input type="hidden" id="maxBidValue" value="@((Model.MaxBid != 0.0) ? Model.MaxBid :Model.Product?.StartingPrice)" />
+                                Current Bid: @maxBid
+                                <input type="hidden" id="maxBidValue" value="@maxBid" />
                             </div>
-                            @if (@Model.Bid != null)
+                            <div class="d-flex flex-wrap">
+                                <input asp-for="Bid.BidPrice" class="text-center rounded mb-2 me-2" id="bidInput" type="number" value="" placeholder="Place your max Bid"
+                                       style="width: 100%; max-width: 140px;" />
+                                <input type="button" data-product-id="@Model.Product?.Id" id="placeBid" class="btn btn-hover bg-gradient-right text-white mb-2 me-2" value="Place Bid" disabled />
+                                <div class="d-flex align-items-center mb-2 ms-1 text-dark" id="countdown"></div>
+                            </div>
+                            <div>
+                                <span asp-validation-for="Bid.BidPrice" class="text-danger ps-2" id="validationMessage"></span>
+                            </div>
+                        </div>
+                        <div id="notifyUser">
+                            @if (User.Identity?.IsAuthenticated is true && Model.CurrentUserMaxBid != 0 && Model.CountDownTarget?.EndTargetDate <= DateTime.UtcNow.ToLocalTime())
                             {
-                                <div class="d-flex flex-wrap">
-                                    <input asp-for="@Model.Bid.BidPrice" class="text-center rounded mb-2 me-2" id="bidInput" type="number" value="" placeholder="Place your max Bid"
-                                           style="width: 100%; max-width: 140px;" />
-                                    <input type="button" data-product-id="@Model.Product?.Id" id="placeBid" class="btn btn-hover bg-gradient-right text-light mb-2 me-2" value="Place Bid" disabled />
-                                    <div class="d-flex align-items-center mb-2 ms-1 text-dark" id="countdown"></div>
-                                </div>
-                                <div>
-                                    <span asp-validation-for="@Model.Bid.BidPrice" class="text-danger ps-2" id="validationMessage"></span>
-                                </div>
+                                if (currentUserMaxBid == maxBid)
+                                {
+                                    <hr class="text-dark" />
+                                    <div class="ps-2">
+                                        <a asp-controller="" asp-action="" class="btn bg-gradient-right btn-hover">Proceed to Payment</a>
+                                    </div>
+                                    if (TempData["WinnerNotification"] is not null)
+                                    {
+                                        <div class="alert alert-success alert-dismissible mt-2 ms-2" role="alert">
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                            @TempData["WinnerNotification"]
+                                        </div>
+                                    }
+                                }
+                                else if (TempData["LoserNotification"] is not null)
+                                {
+                                    <hr class="text-dark" />
+                                    <div class="alert alert-dismissible mt-2 ms-2" style="background-color:#DC143C" role="alert">
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        @TempData["LoserNotification"]
+                                    </div>
+                                }
                             }
+                            
                         </div>
                         @if (User.IsInRole(StaticValues.Role_Admin))
                         {
@@ -141,10 +168,10 @@
                     </div>
                     @*chat*@
                     <div class="col-12 col-md-3 d-flex flex-column justify-content-end border border-1 border-dark p-2" style="height:416px">
-                        <div class="overflow-y-auto p-2" id="chat">
+                        <div class="overflow-y-auto p-2 text-dark" id="chat">
                         </div>
                         <div class="d-flex align-items-end">
-                            <textarea type="text" class="rounded w-100 me-2 align-content-center ps-2" id="messageInput" placeholder="Enter your message" rows="1" style="resize: none;overflow:hidden;min-height:38px;max-height: 380px;"></textarea>
+                            <textarea type="text" class="rounded w-100 me-2 align-content-center ps-2 " id="messageInput" placeholder="Enter your message" rows="1" style="resize: none;overflow:hidden;min-height:38px;max-height: 380px;"></textarea>
                             <input type="button" value="Send" data-product-id="@Model.Product?.Id" class="btn bg-gradient-right btn-hover ms-auto" id="sendButton" />
                         </div>
                         <div>
@@ -165,14 +192,18 @@
                 </div>
             </div>
         </div>
-
-
     </div>
 </form>
+@* get current user for showing place bid toastr *@
+@using System.Security.Claims
+<input id="currentUserId" value="@(User.FindFirstValue(ClaimTypes.NameIdentifier))" hidden />
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+
+        const product_id = @Model.Product?.Id;
+        const user_id = '@Model.Bid?.UserId';
 
         document.getElementById('placeBid').addEventListener('click', function () {
             const productId = placeBid.dataset.productId;
@@ -196,8 +227,8 @@
                 validationMessage.textContent = "The Bid Price must be greater than current bid.";
                 return;
             }
-            if ((bidValue - maxBid) < 50) {
-                validationMessage.textContent = "The minimum Bid Price must be greater than 50 from current bid.";
+            if ((bidValue - maxBid) < 500) {
+                validationMessage.textContent = "The minimum Bid Price must be greater than 500 from current bid.";
                 return;
             }
             if (isNaN(bidValue) && validationMessage.textContent == "") {
@@ -214,8 +245,8 @@
         let targetDate = null;
         let countdownInterval = null;
 
-        let startTargetDate = '@((Model.CountDownTarget?.StartTargetDate != null) ? Model.CountDownTarget.StartTargetDate : "")';
-        let endTargetDate = '@((Model.CountDownTarget?.EndTargetDate != null) ? Model.CountDownTarget.EndTargetDate : "")';
+        let startTargetDate = '@((Model?.CountDownTarget?.StartTargetDate != null) ? Model.CountDownTarget.StartTargetDate : "")';
+        let endTargetDate = '@((Model?.CountDownTarget?.EndTargetDate != null) ? Model.CountDownTarget.EndTargetDate : "")';
 
         startTargetDate = startTargetDate ? new Date(startTargetDate).getTime() : null;
         if (startTargetDate != null && startTargetDate > new Date().getTime()) {
@@ -238,25 +269,35 @@
             document.getElementById('startCountdown').addEventListener('click', function () {
                 const startTargetDateString = document.getElementById('startTargetDateInput').value;
                 const endTargetDateString = document.getElementById('endTargetDateInput').value;
+                const startTargetDate = new Date(startTargetDateString).getTime();
+                const endTargetDate = new Date(endTargetDateString).getTime();
+
                 const productId = startCountdown.dataset.productId;
+
                 const dateValidationMessage = document.getElementById('dateValidationMessage');
-                if (!startTargetDateString && !endTargetDateString) {
+                if (!startTargetDate && !endTargetDate) {
                     dateValidationMessage.textContent = "Both Start and End Dates are required.";
                     return;
                 }
-                if (!startTargetDateString) {
+                if (!startTargetDate) {
                     dateValidationMessage.textContent = "The Start Date is required.";
                     return;
                 }
-                if (!endTargetDateString) {
+                if (!endTargetDate) {
                     dateValidationMessage.textContent = "The End Date is required.";
                     return;
                 }
-                if (startTargetDateString >= endTargetDateString) {
+                if (startTargetDate >= endTargetDate) {
                     dateValidationMessage.textContent = "The Start Date must be earlier than the End Date.";
                     return;
                 }
-                if (startTargetDateString > new Date().getTime()) {
+                if (endTargetDate <= new Date().getTime()) {
+                    dateValidationMessage.textContent = "The End Date must be later than the current Date.";
+                    return;
+                }
+                if (startTargetDate > new Date().getTime()) {
+                    console.log("hello");
+
                     document.getElementById('placeBid').disabled = true;
                     return;
                 }
@@ -270,15 +311,10 @@
                     alert("Invalid date selected!");
                     return;
                 }
-                if (countdownInterval) {
-                    clearInterval(countdownInterval);
-                }
                 dateValidationMessage.textContent = "";
                 document.getElementById('startTargetDateInput').value = "";
                 document.getElementById('endTargetDateInput').value = "";
                 CountDownTarget(targetDate, targetDate2, productId);
-                countdownInterval = setInterval(updateCountdown, 1000);
-                updateCountdown();
             });
         }
 
@@ -297,10 +333,10 @@
                 } else {
                     document.getElementById('countdown').textContent = "";
                     document.getElementById('placeBid').disabled = true;
+                    AuctionEndNotification(product_id, user_id);
                 }
                 return;
             }
-
             const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
             const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
@@ -342,29 +378,38 @@
             messageInput.style.height = this.scrollHeight + 'px';
         });
 
-
         /*SignalR*/
 
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/updateBidSystem")
             .build();
-        //chat
-        connection.on("Received", (messageInput, productId) => {
 
-            if (productId == @Model.Product?.Id) {
-                const chat = document.getElementById('chat');
-                chat.innerHTML += messageInput + "<br>";
-            }
-        });
         //Place Bid
         connection.on("PlaceBid", (bid) => {
             const formattedBidPrice = new Intl.NumberFormat("ur-PK", {
                 style: "currency",
+                minimumFractionDigits: 0,
                 currency: "PKR"
             }).format(bid.bidPrice);
             document.getElementById("currentBid").textContent = `Current Bid: ${formattedBidPrice}`;
             document.getElementById("currentBid").innerHTML += `<input type="hidden" id="maxBidValue" value="${bid.bidPrice}" />`;
+            const currentUserId = document.getElementById("currentUserId").value;
+            if (currentUserId !== bid.userId) {
+                toastr.options = {
+                    "positionClass": "toast-top-center",
+                    "timeOut": "1000",
+                }
+                toastr.success("New Bid Placed!");
+            }
         });
+        //chat
+        connection.on("Received", (messageInput, productId) => {
+            if (productId == @Model?.Product?.Id) {
+                const chat = document.getElementById('chat');
+                chat.innerHTML += messageInput + "<br>";
+            }
+        });
+
         //Count Down Time
         connection.on("CountDown", (countDownTarget) => {
             if (countdownInterval) {
@@ -376,6 +421,7 @@
 
             startTargetDate = startTargetDate ? new Date(startTargetDate).getTime() : null;
             if (startTargetDate != null && startTargetDate > new Date().getTime()) {
+                document.getElementById('notifyUser').textContent = "";
                 targetDate = startTargetDate;
                 countdownInterval = setInterval(updateCountdown, 1000);
                 document.getElementById('placeBid').disabled = true;
@@ -383,40 +429,52 @@
             } else {
                 endTargetDate = endTargetDate ? new Date(endTargetDate).getTime() : null;
                 if (endTargetDate != null && endTargetDate > new Date().getTime()) {
+                    document.getElementById('notifyUser').textContent = "";
                     targetDate = endTargetDate;
                     countdownInterval = setInterval(updateCountdown, 1000);
                     document.getElementById('placeBid').disabled = false;
                     updateCountdown();
                 }
             }
+        });
+        //auction end notification and Proceed to payment
+        connection.on("AuctionEndNotification", (bidViewModel) => {
+            const isAuthenticated = @User.Identity?.IsAuthenticated.ToString().ToLower();
+            const currentUserMaxBid = bidViewModel.currentUserMaxBid;
+            const maxBid = bidViewModel.maxBid;
+            const isNotificationSeen = @Model?.Bid?.IsBidEndNotificationSeen.ToString().ToLower();
 
-            function updateCountdown() {
-                const now = new Date().getTime();
-                const timeRemaining = targetDate - now;
+            if (isAuthenticated && currentUserMaxBid != 0) {
+                if (currentUserMaxBid == maxBid) {
+                    document.getElementById('notifyUser').innerHTML = `
+                                                                                <hr class="text-dark" />
+                                                                                <div class="ps-2">
+                                                                                    <a href="" class="btn bg-gradient-right btn-hover">Proceed to Payment</a>
+                                                                                </div>`;
 
-                if (timeRemaining <= 0) {
-                    clearInterval(countdownInterval);
-                    endTargetDate = endTargetDate ? new Date(endTargetDate).getTime() : null;
-                    if (endTargetDate != null && endTargetDate > new Date().getTime()) {
-                        targetDate = endTargetDate;
-                        countdownInterval = setInterval(updateCountdown, 1000);
-                        document.getElementById('placeBid').disabled = false;
-                        updateCountdown();
-                    } else {
-                        document.getElementById('countdown').textContent = "";
-                        document.getElementById('placeBid').disabled = true;
+                    if (!isNotificationSeen) {
+                        document.getElementById('notifyUser').innerHTML += `
+                                                                                <div class="alert alert-success alert-dismissible mt-2 ms-2" role="alert">
+                                                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                                                    Congratulations! 🎉
+                                                                                    You have won the auction!
+                                                                                    Your winning bid: Rs ${maxBid}.
+                                                                                    Please complete your payment within 24 hours.
+                                                                                </div>`;
                     }
-                    return;
+                } else if (!isNotificationSeen) {
+                    document.getElementById('notifyUser').innerHTML = `
+                                                                                <hr class="text-dark" />
+                                                                                <div class="alert alert-dismissible mt-2 ms-2" style="background-color:#DC143C" role="alert">
+                                                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                                                    Unfortunately, you didn’t win this auction.
+                                                                                    Your bid was Rs ${currentUserMaxBid} while the winning bid was Rs ${maxBid}.
+                                                                                    Don’t worry! — more auctions are waiting for you.
+                                                                                </div>`;
                 }
-
-                const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-
-                document.getElementById('countdown').textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
             }
         });
+
         connection.start().catch(err => console.error(err.toString()));
         window.addEventListener("beforeunload", () => {
             connection.stop().catch(err => console.error(err.toString()));

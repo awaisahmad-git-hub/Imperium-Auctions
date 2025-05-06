@@ -20,6 +20,15 @@ namespace PrestigeAuction.Repository
             var maxBid = await _context.Bids.Where(u=>u.ProductID==id).Select(u => u.BidPrice).DefaultIfEmpty().MaxAsync();
             return maxBid;
         }
+        public async Task<double> CurrentUserMaxBid(int? id, string? currentUserId)
+        {
+            if (!string.IsNullOrEmpty(currentUserId))
+            {
+                var currentUserMaxBid = await _context.Bids.Where(u => u.ProductID == id&& u.UserId == currentUserId).Select(u => u.BidPrice).DefaultIfEmpty().MaxAsync();
+                return currentUserMaxBid;
+            }
+            return 0;
+        }
 
         public async Task SaveA()
         {

@@ -21,7 +21,7 @@
         input[type="file"]::after {
             position: absolute;
             left: 35px;
-            color: #fdf6e3;
+            color: #fff;
             content: "Upload File";
         }
 
@@ -42,7 +42,7 @@
     <div class="col-md-6 m-5">
         <div class="card shadow border-1">
             <div class="card-header bg-gradient bg-success">
-                <h2 class="text-light text-center p-2">@(Model.Product?.Id == null || Model.Product.Id == 0 ? "Create " : "Update ")Product</h2>
+                <h2 class="text-white text-center p-2">@(Model.Product?.Id == null || Model.Product.Id == 0 ? "Create " : "Update ")Product</h2>
             </div>
             <div class="card-body mx-2">
                 <div class="row">
@@ -71,7 +71,7 @@
                                     <span asp-validation-for="@Model.Product.StartingPrice" class="text-danger"></span>
                                 </div>
                                 <div class="mt-4">
-                                    <a class="btn btn-hover d-flex justify-content-between align-items-center text-light bg-gradient-right dropdown-toggle w-100" id="category-button" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                                    <a class="btn btn-hover d-flex justify-content-between align-items-center text-white bg-gradient-right dropdown-toggle w-100" id="category-button" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                                         --Select Category--
                                     </a>
                                     <input type="hidden" asp-for="@Model.Product.CategoryId" id="hiddenCategory" />
@@ -80,7 +80,7 @@
                                         {
                                             foreach (var item in @Model.CategoryList)
                                             {
-                                                <a class="dropdown-item btn-hover text-light productCategoryMenuItem" data-category-text="@item.Text" data-category-value="@item.Value">@item.Text</a>
+                                                <a class="dropdown-item btn-hover text-white productCategoryMenuItem" data-category-text="@item.Text" data-category-value="@item.Value">@item.Text</a>
                                             }
                                         }
                                     </div>

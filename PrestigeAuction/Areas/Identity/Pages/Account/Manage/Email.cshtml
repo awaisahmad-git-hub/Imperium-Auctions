@@ -8,9 +8,10 @@
 <div class="row justify-content-center">
     <div class="col-md-6">
         <form id="email-form" method="post" class="mb-4">
+            <partial name="_StatusMessage" for="StatusMessage" />
             <div class="card shadow-lg">
-                <div class="card-header bg-success bg-gradient text-light text-center">
-                    <h2 class="text-light">@ViewData["Title"]</h2>
+                <div class="card-header bg-success bg-gradient text-white text-center">
+                    <h2 class="text-white">@ViewData["Title"]</h2>
                 </div>
                 <div class="card-body">
                     @if (Model.IsEmailConfirmed)
@@ -26,7 +27,7 @@
                     else
                     {
                         <div class="form-floating mb-3">
-                            <input asp-for="Email" class="form-control form-input-style text-dark" style="background-color:#ced4da !important" placeholder="Please enter your email." disabled />
+                            <input asp-for="Email" class="form-control form-input-style text-dark" style="background-color:aliceblue !important" placeholder="Please enter your email." disabled />
                             <label asp-for="Email" class="form-label text-success"></label>
                             <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail" class="btn text-success text-decoration-underline shadow-none border-0 link-hover">Send verification email</button>
                         </div>
@@ -41,7 +42,6 @@
  *@                </div>
             </div>
         </form>
-        <partial name="_StatusMessage" for="StatusMessage" />
     </div>
 </div>
 

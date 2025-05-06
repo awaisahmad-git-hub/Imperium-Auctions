@@ -1,9 +1,12 @@
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using PrestigeAuction.Models;
 using PrestigeAuction.Repository.IRepository;
 using PrestigeAuction.ViewModel;
 using System.Diagnostics;
+using System.Globalization;
+using System.Security.Claims;
 
 namespace PrestigeAuction.Areas.User.Controllers
 {
@@ -11,9 +14,11 @@ namespace PrestigeAuction.Areas.User.Controllers
     public class HomeController : Controller
     {
         private readonly IMainRepository _MainRepo;
-        public HomeController(IMainRepository mainRepo)
+        private readonly UserManager<IdentityUser> _userManager;
+        public HomeController(IMainRepository mainRepo, UserManager<IdentityUser> userManager)
         {
             _MainRepo = mainRepo;
+            _userManager = userManager;
         }
         [Route("/")]
         public IActionResult Index(string? searchString)
@@ -46,16 +51,28 @@ namespace PrestigeAuction.Areas.User.Controllers
         {
             return View();
         }
-        public async Task<IActionResult> ProductDetails(int? id)
+        public async Task<IActionResult> ProductBid(int? id)
         {
-            Product_Bid_MaxBid_CountDownTargetViewModel obj = new()
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            /*var user = await _userManager.GetUserAsync(User) as ApplicationUser;
+            var customName = user?.Name;*/
+            BidViewModel bidViewModel = new()
             {
                 Product = _MainRepo.ProductRepository.Get(u => u.Id == id, includeProperty: "Category,ProductImageList"),
-                Bid = new Bid(),
-                CountDownTarget = _MainRepo.CountDownTargetRepository.Get(u=>u.ProductID==id),
-                MaxBid = await _MainRepo.BidRepository.MaxBid(id)
+                Bid = _MainRepo.BidRepository.Get(u=>u.ProductID==id && u.UserId==userId),
+                CountDownTarget = _MainRepo.CountDownTargetRepository.Get(u => u.ProductID == id),
+                MaxBid = await _MainRepo.BidRepository.MaxBid(id),
+                CurrentUserMaxBid = await _MainRepo.BidRepository.CurrentUserMaxBid(id, userId)
             };
-            return View(obj);
+            if (bidViewModel.Bid is not null && bidViewModel.Bid.IsBidEndNotificationSeen is false && bidViewModel.CountDownTarget?.EndTargetDate <= DateTime.UtcNow.ToLocalTime())
+            {
+                bidViewModel.Bid.IsBidEndNotificationSeen = true;
+                _MainRepo.BidRepository.Update(bidViewModel.Bid);
+                await _MainRepo.BidRepository.SaveA();
+                TempData["WinnerNotification"] = $"Congratulations! 🎉 You have won the auction! Your winning bid: {bidViewModel.MaxBid.ToString("Rs #,##0", new CultureInfo("ur-PK"))}. Please complete your payment within 24 hours.";
+                TempData["LoserNotification"] = $"Unfortunately, you didn’t win this auction. Your bid was {bidViewModel.CurrentUserMaxBid.ToString("Rs #,##0", new CultureInfo("ur-PK"))} while the winning bid was {bidViewModel.MaxBid.ToString("Rs #,##0", new CultureInfo("ur-PK"))}. Don’t worry! — more auctions are waiting for you.";
+            }
+            return View(bidViewModel);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
@@ -71,19 +88,19 @@ namespace PrestigeAuction.Areas.User.Controllers
             {
                 if (searchString == "All")
                 {
-                    Products = _MainRepo.ProductRepository.GetAllOrderedByTitle(includeProperty: "ProductImageList");
+                    Products = _MainRepo.ProductRepository.GetAllOrderedByTitle(includeProperty: "ProductImageList,CountDownTarget");
                 }
                 else
                 {
                     Products = _MainRepo.ProductRepository
-                   .GetAll(includeProperty: "ProductImageList")
+                   .GetAll(includeProperty: "ProductImageList,CountDownTarget")
                    .Where(p => p.Category != null && p.Category.Name != null && p.Category.Name.ToUpper().Contains(searchString.ToUpper()))
                    .OrderBy(o => o.Title);
                 }
             }
             else
             {
-                Products = _MainRepo.ProductRepository.GetAllOrderedByTitle(includeProperty: "ProductImageList");
+                Products = _MainRepo.ProductRepository.GetAllOrderedByTitle(includeProperty: "ProductImageList,CountDownTarget");
             }
             return PartialView("_HomeProducts", Products.ToList());
         }
@@ -91,14 +108,14 @@ namespace PrestigeAuction.Areas.User.Controllers
         {
             IOrderedQueryable<Product> products;
             if (!string.IsNullOrEmpty(searchString))
-            {                    
+            {
                 products = _MainRepo.ProductRepository
-                   .GetAll(includeProperty: "ProductImageList")
+                   .GetAll(includeProperty: "ProductImageList,CountDownTarget")
                    .Where(p => p.Title != null && p.Title.ToUpper().Contains(searchString.ToUpper()))
                    .OrderBy(o => o.Title);
                 return PartialView("_HomeProducts", products);
             }
-            products = _MainRepo.ProductRepository.GetAllOrderedByTitle(includeProperty: "ProductImageList");
+            products = _MainRepo.ProductRepository.GetAllOrderedByTitle(includeProperty: "ProductImageList,CountDownTarget");
             return PartialView("_HomeProducts", products);
         }
         #endregion
