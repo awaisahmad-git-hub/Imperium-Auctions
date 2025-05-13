@@ -1,8 +1,8 @@
 ﻿namespace PrestigeAuction.DTOs
 {
-    public class BidProductUserDTO
+    public class PlaceBidDTO
     {
         public int ProductId { get; set; }
-        public string? UserId { get; set; }
+        public double BidValue { get; set; }
     }
 }

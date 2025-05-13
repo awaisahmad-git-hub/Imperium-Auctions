@@ -1,42 +1,42 @@
 ﻿@model ProductViewModel
 <style>
     input[type="file"] {
-        position: relative;
-        text-overflow: ellipsis;
+    position: relative;
+    text-overflow: ellipsis;
     }
 
-        input[type="file"]::file-selector-button {
-            color: transparent;
-        }
+    input[type="file"]::file-selector-button {
+    color: transparent;
+    }
 
-        /* Faked label styles and icon */
-        input[type="file"]::before {
-            position: absolute;
-            height: 20px;
-            width: 20px;
-            content: "";
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fdf6e3'%3E%3Cpath d='M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3h-2zM7 9l1.41 1.41L11 7.83V16h2V7.83l2.59 2.58L17 9l-5-5-5 5z'/%3E%3C/svg%3E");
-        }
+    /* Faked label styles and icon */
+    input[type="file"]::before {
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    content: "";
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fdf6e3'%3E%3Cpath d='M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3h-2zM7 9l1.41 1.41L11 7.83V16h2V7.83l2.59 2.58L17 9l-5-5-5 5z'/%3E%3C/svg%3E");
+    }
 
-        input[type="file"]::after {
-            position: absolute;
-            left: 35px;
-            color: #fff;
-            content: "Upload File";
-        }
+    input[type="file"]::after {
+    position: absolute;
+    left: 35px;
+    color: #fff;
+    content: "Upload File";
+    }
 
-        /* file upload button */
-        input[type="file"]::file-selector-button {
-            cursor: pointer;
-            background-image: linear-gradient(to left,#2aa198, #073642);
-            padding-right: 30px
-        }
+    /* file upload button */
+    input[type="file"]::file-selector-button {
+    cursor: pointer;
+    background-image: linear-gradient(to left,#2aa198, #073642);
+    padding-right: 30px
+    }
 
-        /* Soft click effect */
-        input[type="file"]:active {
-            transform: scale(0.99);
-            transition: transform 0.1s ease-in-out;
-        }
+    /* Soft click effect */
+    input[type="file"]:active {
+    transform: scale(0.99);
+    transition: transform 0.1s ease-in-out;
+    }
 </style>
 <div class="row justify-content-center">
     <div class="col-md-6 m-5">
@@ -48,50 +48,51 @@
                 <div class="row">
                     <div class="col-sm-8">
                         <form method="post" enctype="multipart/form-data">
-                            @if (Model.Product != null)
-                            {
-                                <input asp-for="@Model.Product.Id" hidden />
+                                <input asp-for="Product.Id" hidden />
                                 <div>
-                                    <label asp-for="@Model.Product.Title" class="col-form-label text-success"></label>
-                                    <input asp-for="@Model.Product.Title" class="form-control form-input-style" />
-                                    <span asp-validation-for="@Model.Product.Title" class="text-danger"></span>
+                                    <label asp-for="Product.Title" class="col-form-label text-success"></label>
+                                    <input asp-for="Product.Title" class="form-control form-input-style" />
+                                    <span asp-validation-for="Product.Title" class="text-danger"></span>
                                 </div>
                                 <div class="mt-2">
-                                    <label asp-for="@Model.Product.Description" class="col-form-label text-success"></label>
-                                    <textarea asp-for="@Model.Product.Description" class="form-control form-input-style" style="height:100px"></textarea>
+                                    <label asp-for="Product.Description" class="col-form-label text-success"></label>
+                                    <textarea asp-for="Product.Description" class="form-control form-input-style" style="height:100px"></textarea>
                                 </div>
                                 <div class="mt-2">
-                                    <label asp-for="@Model.Product.SKU" class="col-form-label text-success"></label>
-                                    <input asp-for="@Model.Product.SKU" class="form-control form-input-style" />
-                                    <span asp-validation-for="@Model.Product.SKU" class="text-danger"></span>
+                                    <label asp-for="Product.SKU" class="col-form-label text-success"></label>
+                                    <input asp-for="Product.SKU" class="form-control form-input-style" />
+                                    <span asp-validation-for="Product.SKU" class="text-danger"></span>
                                 </div>
                                 <div class="mt-2">
-                                    <label asp-for="@Model.Product.StartingPrice" class="col-form-label text-success"></label>
-                                    <input asp-for="@Model.Product.StartingPrice" class="form-control form-input-style" />
-                                    <span asp-validation-for="@Model.Product.StartingPrice" class="text-danger"></span>
+                                    <label asp-for="Product.StartingPrice" class="col-form-label text-success"></label>
+                                    <input asp-for="Product.StartingPrice" class="form-control form-input-style" />
+                                    <span asp-validation-for="Product.StartingPrice" class="text-danger"></span>
                                 </div>
                                 <div class="mt-4">
-                                    <a class="btn btn-hover d-flex justify-content-between align-items-center text-white bg-gradient-right dropdown-toggle w-100" id="category-button" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                                    <a id="category-button" class="btn btn-hover d-flex justify-content-between align-items-center text-white bg-gradient-right dropdown-toggle w-100" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                                         --Select Category--
                                     </a>
-                                    <input type="hidden" asp-for="@Model.Product.CategoryId" id="hiddenCategory" />
                                     <div class="dropdown-menu bg-gradient-right position-absolute overflow-auto scrollbar-color" style="cursor:pointer;max-height:240px" id="productCategoryMenu">
                                         @if (Model?.CategoryList != null)
                                         {
                                             foreach (var item in @Model.CategoryList)
                                             {
                                                 <a class="dropdown-item btn-hover text-white productCategoryMenuItem" data-category-text="@item.Text" data-category-value="@item.Value">@item.Text</a>
+                                                if (item.Text=="Other")
+                                                {
+                                                <input id="hiddenCategory" type="hidden" asp-for="Product.CategoryId" value="@item.Value" />
+                                                }
                                             }
                                         }
                                     </div>
-                                    <span asp-validation-for="@Model!.Product.CategoryId" class="text-danger"></span>
+                                    <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
                                 </div>
                                 <div class="mt-2">
-                                    <label asp-for="@Model!.Product.ProductImageList" class="col-form-label text-success"></label>
-                                    <input asp-for="@Model!.Product.ProductImageList" accept="image/*" type="file" name="files" class=" form-control form-input-style" multiple />
+                                    <label asp-for="Product.ProductImageList" class="col-form-label text-success"></label>
+                                    <input asp-for="Product.ProductImageList" accept="image/*" type="file" name="files" class=" form-control form-input-style" multiple />
                                 </div>
                                 <div class="row mt-4">
-                                    @if (Model?.Product.Id == null || Model.Product.Id == 0)
+                                    @if (Model?.Product?.Id == null || Model.Product.Id == 0)
                                     {
                                         <div class="col-6 ">
                                             <input type="submit" value="Create" class="btn bg-gradient-right btn-hover form-control btn-transition" />
@@ -100,7 +101,7 @@
                                     else
                                     {
                                         <div class="col-6 ">
-                                            <input type="submit" value="Update" class="btn bg-gradient-right btn-hover  form-control btn-transition" />
+                                            <input type="submit" value="Update" class="btn bg-gradient-right btn-hover form-control btn-transition" />
                                         </div>
                                     }
                                     <div class="col-6">
@@ -108,7 +109,6 @@
                                     </div>
                                     <div asp-validation-summary="All" class="mt-3 text-danger"></div>
                                 </div>
-                            }
                         </form>
                     </div>
                     <div id="productImages" class="col-sm-4 mt-3 overflow-y-auto scrollbar-color" style="height:600px">

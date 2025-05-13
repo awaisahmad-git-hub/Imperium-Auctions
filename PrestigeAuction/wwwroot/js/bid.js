@@ -12,7 +12,7 @@ function PlaceBid(productId, bidValue) {
         confirmButtonText: "Yes, do it!"
     }).then((result) => {
         if (result.isConfirmed) {
-            axios.get('/User/Bid/PlaceBid', { params: { productId: productId, bidValue: bidValue } })
+            axios.post('/User/Bid/PlaceBid', { productId: productId, bidValue: bidValue })
                 .then(response => {
                     toastr.options = {
                         "positionClass": "toast-top-center",
@@ -29,7 +29,7 @@ function PlaceBid(productId, bidValue) {
 }
 function CountDownTarget(startTargetDate, endTargetDate, productId) {
 
-    axios.get('/User/Bid/CountDownTargetTime', { params: { startTargetDate: startTargetDate, endTargetDate: endTargetDate, productId: productId } })
+    axios.post('/User/Bid/CountDownTargetTime', { startTargetDate: startTargetDate, endTargetDate: endTargetDate, productId: productId })
         .then(response => {
 
             //location.reload();
@@ -38,15 +38,33 @@ function CountDownTarget(startTargetDate, endTargetDate, productId) {
             alert('There was an error placing the time:', error);
         });
 }
-function AuctionEndNotification(productId, userId) {
-    if (productId && userId) {
-        axios.post('/User/Bid/Notification', { productId: productId, userId: userId })
+function AuctionEndNotification(productId) {
+    if (productId) {
+        axios.post('/User/Bid/AuctionEndNotification', { productId: productId })
             .then(response => {
-
-                //location.reload();
+                if (response.status !== 204) {
+                    if (response.data.isWinner) {
+                        document.getElementById('notifyUser').innerHTML = `
+                                                                                   <hr class="text-dark" />
+                                                                                   <div class="ps-2">
+                                                                                       <a href="/user/auction-order/order-summary/${response.data.bidId}" class="btn bg-gradient-right btn-hover">Proceed to Payment</a>
+                                                                                   </div>
+                                                                                   <div class="alert alert-success alert-dismissible mt-2 ms-2" role="alert" style="text-align:justify">
+                                                                                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                                                       ${response.data.message}
+                                                                                   </div>`;
+                    } else {
+                        document.getElementById('notifyUser').innerHTML = `
+                                                                                   <hr class="text-dark" />
+                                                                                   <div class="alert alert-dismissible mt-2 ms-2" style="background-color:#DC143C;text-align:justify" role="alert">
+                                                                                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                                                       ${response.data.message}
+                                                                                   </div>`;
+                    }
+                }
             }).catch(error => {
                 console.log(error);
-                alert('There was an error placing the time:', error);
+                alert('There was an error:', error);
             });
     }
 }

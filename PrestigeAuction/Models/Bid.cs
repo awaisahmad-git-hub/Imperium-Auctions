@@ -13,9 +13,7 @@ namespace PrestigeAuction.Models
     public class Bid
     {
         [Key]
-        public int Id { get; set; }
-        [Required]
-        public Guid? BidID { get; set; }
+        public Guid BidID { get; set; }
         [Required]
         [Range(1, double.MaxValue, ErrorMessage = "The Price must be above 0")]
         [DisplayName("Bid Price:")]

@@ -12,6 +12,7 @@ namespace PrestigeAuction.Repository
         public IProductImageRepository ProductImageRepository { get; private set; }
         public IBidRepository BidRepository { get; private set; }
         public ICountDownTargetRepository CountDownTargetRepository { get; private set; }
+        public IAuctionOrderRepository AuctionOrderRepository { get; private set; }
 
         public MainRepository(ApplicationDbContext db)
         {
@@ -21,6 +22,7 @@ namespace PrestigeAuction.Repository
             ProductImageRepository = new ProductImageRepository(_context);
             BidRepository = new BidRepository(_context);
             CountDownTargetRepository= new CountDownTargetRepository(_context);
+            AuctionOrderRepository = new AuctionOrderRepository(_context);
         }
 
         public void Save()

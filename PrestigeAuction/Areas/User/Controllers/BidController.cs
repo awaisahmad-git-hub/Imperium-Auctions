@@ -10,6 +10,8 @@ using PrestigeAuction.Models;
 using PrestigeAuction.Repository.IRepository;
 using PrestigeAuction.ViewModel;
 using Stripe;
+using System;
+using System.Globalization;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
@@ -27,88 +29,122 @@ namespace PrestigeAuction.Areas.User.Controllers
             _MainRepo = mainRepository;
             _hubContext = hubContext;
         }
-
-        public async Task<IActionResult> PlaceBid( int productId, double bidValue)
+        #region Api methods
+        [HttpPost]
+        public async Task<IActionResult> PlaceBid([FromBody] PlaceBidDTO placeBidDTO)
         {
+            if (User.Identity?.IsAuthenticated == false)
+            {
+                return Unauthorized(new { message = "Unauthorized" });
+            }
             BidViewModel bidViewModel = new()
             {
-                MaxBid = await _MainRepo.BidRepository.MaxBid(productId)
+                MaxBid = await _MainRepo.BidRepository.MaxBid(placeBidDTO.ProductId)
             };
-            if (bidValue<= bidViewModel.MaxBid)
+            if (placeBidDTO.BidValue <= bidViewModel.MaxBid)
             {
                 return BadRequest(new {message= "The Bid Price must be greater than current bid." });
             }
-            if ((bidValue - bidViewModel.MaxBid) < 500)
+            if ((placeBidDTO.BidValue - bidViewModel.MaxBid) < 500)
             {
                 return BadRequest(new { message = "The minimum Bid Price must be greater than 500 from current bid." });
             }
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var _bid= _MainRepo.BidRepository.Get(u => u.ProductID == productId && u.UserId == userId);
-            if (_bid != null)
+            var bid= _MainRepo.BidRepository.Get(u => u.ProductID == placeBidDTO.ProductId && u.UserId == userId);
+            if (bid != null)
             {
-                _MainRepo.BidRepository.Delete(_bid);
+                bid.BidPrice = placeBidDTO.BidValue;
+                bid.BidTime = DateTime.UtcNow.ToLocalTime();
+                await _hubContext.Clients.All.SendAsync("PlaceBid", new
+                {
+                    bidPrice = bid.BidPrice,
+                    userId = bid.UserId
+                });
             }
-            
-            Bid bid = new() 
+            else
             {
-                BidID=Guid.NewGuid(),
-                BidPrice= bidValue,
-                BidTime=DateTime.UtcNow.ToLocalTime(),
-                ProductID= productId,
-                UserId=userId
-            };
-            _MainRepo.BidRepository.Add(bid);
+                Bid newBid = new()
+                {
+                    BidID=Guid.NewGuid(),
+                    BidPrice = placeBidDTO.BidValue,
+                    BidTime = DateTime.UtcNow.ToLocalTime(),
+                    ProductID = placeBidDTO.ProductId,
+                    UserId = userId
+                };
+                _MainRepo.BidRepository.Add(newBid);
+                await _hubContext.Clients.All.SendAsync("PlaceBid", new
+                {
+                    bidPrice = newBid.BidPrice,
+                    userId = newBid.UserId,
+                });
+            }
             await _MainRepo.BidRepository.SaveA();
-            await _hubContext.Clients.All.SendAsync("PlaceBid", new
-            {
-                bidPrice=bid.BidPrice,
-                userId=bid.UserId
-            });
             return Ok(new {message= "Placed Successfully"});
         }
-        public async Task<IActionResult> CountDownTargetTime(DateTime startTargetDate, DateTime endTargetDate,int productId)
+        [HttpPost]
+        public async Task<IActionResult> CountDownTargetTime([FromBody] CountDownDTO countDownDTO)
         {
-            var _countDownTarget=_MainRepo.CountDownTargetRepository.Get(u=>u.ProductID ==productId);
-            if (_countDownTarget != null) { 
-                _MainRepo.CountDownTargetRepository.Delete(_countDownTarget);          
+            var countDownTarget=_MainRepo.CountDownTargetRepository.Get(u=>u.ProductID == countDownDTO.ProductId);
+            if (countDownTarget != null) {
+                countDownTarget.StartTargetDate = countDownDTO.StartTargetDate.ToLocalTime();
+                countDownTarget.EndTargetDate = countDownDTO.EndTargetDate.ToLocalTime();
+                await _hubContext.Clients.All.SendAsync("CountDown", new
+                {
+                    startTargetDate=countDownTarget.StartTargetDate,
+                    endTargetDate=countDownTarget.EndTargetDate
+                });
             }
-            CountDownTarget countDownTarget = new()
+            else
             {
-                StartTargetDate = startTargetDate.ToLocalTime(),
-                EndTargetDate = endTargetDate.ToLocalTime(),
-                ProductID = productId
-            };
-            _MainRepo.CountDownTargetRepository.Add(countDownTarget);
+                CountDownTarget newCountDownTarget = new()
+                {
+                    StartTargetDate = countDownDTO.StartTargetDate.ToLocalTime(),
+                    EndTargetDate = countDownDTO.EndTargetDate.ToLocalTime(),
+                    ProductID = countDownDTO.ProductId
+                };
+                _MainRepo.CountDownTargetRepository.Add(newCountDownTarget);
+                await _hubContext.Clients.All.SendAsync("CountDown", new
+                {
+                    startTargetDate = newCountDownTarget.StartTargetDate,
+                    endTargetDate = newCountDownTarget.EndTargetDate
+                });
+            }
             await _MainRepo.CountDownTargetRepository.SaveA();
-            await _hubContext.Clients.All.SendAsync("CountDown", countDownTarget);
             return Ok();
         }
+
         [HttpPost]
-        public async Task<IActionResult> Notification([FromBody] BidProductUserDTO? bidProductUserDTO)
+        public async Task<IActionResult> AuctionEndNotification([FromBody] BidProductIdDTO bidProductIdDTO)
         {
-            if (bidProductUserDTO != null)
+            if (bidProductIdDTO != null)
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 BidViewModel bidViewModel = new()
                 {
-                    Bid = _MainRepo.BidRepository.Get(u => u.ProductID == bidProductUserDTO.ProductId && u.UserId == bidProductUserDTO.UserId),
-                    CountDownTarget = _MainRepo.CountDownTargetRepository.Get(u => u.ProductID == bidProductUserDTO.ProductId),
-                    MaxBid = await _MainRepo.BidRepository.MaxBid(bidProductUserDTO.ProductId),
-                    CurrentUserMaxBid = await _MainRepo.BidRepository.CurrentUserMaxBid(bidProductUserDTO.ProductId, bidProductUserDTO.UserId)
+                    Bid = _MainRepo.BidRepository.Get(u => u.ProductID == bidProductIdDTO.ProductId && u.UserId == userId),
+                    CountDownTarget = _MainRepo.CountDownTargetRepository.Get(u => u.ProductID == bidProductIdDTO.ProductId),
+                    MaxBid = await _MainRepo.BidRepository.MaxBid(bidProductIdDTO.ProductId),
+                    CurrentUserMaxBid = await _MainRepo.BidRepository.CurrentUserMaxBid(bidProductIdDTO.ProductId, userId)
                 };
 
                 if (bidViewModel.Bid != null&& bidViewModel.CountDownTarget?.EndTargetDate <= DateTime.UtcNow.ToLocalTime())
                 {
                     bidViewModel.Bid.IsBidEndNotificationSeen = true;
-                    _MainRepo.BidRepository.Update(bidViewModel.Bid);
                     await _MainRepo.BidRepository.SaveA();
-                    await _hubContext.Clients.All.SendAsync("AuctionEndNotification", new
+                    if (bidViewModel.CurrentUserMaxBid == bidViewModel.MaxBid)
                     {
-                        maxBid= bidViewModel.MaxBid,
-                        currentUserMaxBid = bidViewModel.CurrentUserMaxBid
-                    });
+                        var winnerNotification = $"Congratulations! 🎉 You have won the auction! Your winning bid is {bidViewModel.MaxBid.ToString("'Rs.' #,##0", new CultureInfo("ur-PK"))}. Please complete your payment within 48 hours. Otherwise, you will lose the product.";
+                        return Ok(new { message = winnerNotification,isWinner=true,bidId=bidViewModel.Bid.BidID });
+                    }
+                    else
+                    {
+                        var loserNotification = $"Unfortunately, you didn’t win this auction. Your bid was {bidViewModel.CurrentUserMaxBid.ToString("'Rs.' #,##0", new CultureInfo("ur-PK"))} while the winning bid was {bidViewModel.MaxBid.ToString("'Rs.' #,##0", new CultureInfo("ur-PK"))}. Don’t worry! — more auctions are waiting for you.";
+                        return Ok(new { message = loserNotification , isWinner = false });
+                    }
                 }
             }
-            return Ok();
+            return NoContent();
         }
+        #endregion
     }
 }

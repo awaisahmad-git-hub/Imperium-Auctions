@@ -52,7 +52,9 @@
                                     @foreach (var item in Model.Product.ProductImageList.Select((image, index) => new { Image = image, Index = index }))
                                     {
                                         <div class="@((item.Index==0)?"carousel-item active":"carousel-item")">
-                                            <img src="@item.Image.ImageURL" class="rounded d-block" alt="..." style="height:400px;max-width:100%;object-fit:contain">
+                                            <div class="d-flex justify-content-center w-auto">
+                                                <img src="@item.Image.ImageURL" class="rounded d-block" alt="..." style="height:400px;max-width:100%;object-fit:contain">
+                                            </div>
                                         </div>
                                     }
                                 </div>
@@ -118,11 +120,11 @@
                                 {
                                     <hr class="text-dark" />
                                     <div class="ps-2">
-                                        <a asp-controller="" asp-action="" class="btn bg-gradient-right btn-hover">Proceed to Payment</a>
+                                        <a asp-controller="AuctionOrder" asp-action="OrderSummary" asp-route-bidId="@Model.Bid?.BidID" class="btn bg-gradient-right btn-hover">Proceed to Payment</a>
                                     </div>
                                     if (TempData["WinnerNotification"] is not null)
                                     {
-                                        <div class="alert alert-success alert-dismissible mt-2 ms-2" role="alert">
+                                        <div class="alert alert-success alert-dismissible mt-2 ms-2" role="alert" style="text-align:justify">
                                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                             @TempData["WinnerNotification"]
                                         </div>
@@ -131,13 +133,13 @@
                                 else if (TempData["LoserNotification"] is not null)
                                 {
                                     <hr class="text-dark" />
-                                    <div class="alert alert-dismissible mt-2 ms-2" style="background-color:#DC143C" role="alert">
+                                    <div class="alert alert-dismissible mt-2 ms-2" style="background-color:#DC143C;text-align:justify" role="alert">
                                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                         @TempData["LoserNotification"]
                                     </div>
                                 }
                             }
-                            
+
                         </div>
                         @if (User.IsInRole(StaticValues.Role_Admin))
                         {
@@ -167,11 +169,11 @@
                         }
                     </div>
                     @*chat*@
-                    <div class="col-12 col-md-3 d-flex flex-column justify-content-end border border-1 border-dark p-2" style="height:416px">
-                        <div class="overflow-y-auto p-2 text-dark" id="chat">
+                    <div class="col-12 col-md-3 d-flex flex-column justify-content-end border border-1 border-dark p-2 gap-2" style="height:416px">
+                        <div class="overflow-y-auto" id="chat">
                         </div>
-                        <div class="d-flex align-items-end">
-                            <textarea type="text" class="rounded w-100 me-2 align-content-center ps-2 " id="messageInput" placeholder="Enter your message" rows="1" style="resize: none;overflow:hidden;min-height:38px;max-height: 380px;"></textarea>
+                        <div class="d-flex align-items-end gap-1">
+                            <textarea type="text" class="rounded w-100 me-2 align-content-center ps-2" id="messageInput" placeholder="Enter your message" rows="1" style="resize: none;overflow:hidden;min-height:38px;max-height: 380px;"></textarea>
                             <input type="button" value="Send" data-product-id="@Model.Product?.Id" class="btn bg-gradient-right btn-hover ms-auto" id="sendButton" />
                         </div>
                         <div>
@@ -194,25 +196,19 @@
         </div>
     </div>
 </form>
-@* get current user for showing place bid toastr *@
-@using System.Security.Claims
-<input id="currentUserId" value="@(User.FindFirstValue(ClaimTypes.NameIdentifier))" hidden />
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
 
-        const product_id = @Model.Product?.Id;
-        const user_id = '@Model.Bid?.UserId';
-
         document.getElementById('placeBid').addEventListener('click', function () {
-            const productId = placeBid.dataset.productId;
+            const productId = this.dataset.productId;
             ValidateAndPlaceBid(productId);
         });
 
         function ValidateAndPlaceBid(productId) {
-            const isAuthenticated = @User.Identity?.IsAuthenticated.ToString().ToLower();
-            if (!isAuthenticated) {
+            const isAuthenticated = "@User.Identity?.IsAuthenticated.ToString().ToLower()";
+            if (isAuthenticated!=="true") {
                 window.location.href = '/Identity/Account/Login';
                 return;
             }
@@ -265,14 +261,14 @@
             }
         }
 
-        if (@User.IsInRole(StaticValues.Role_Admin).ToString().ToLower()) {
+        if ("@User.IsInRole(StaticValues.Role_Admin).ToString().ToLower()"==="true") {
             document.getElementById('startCountdown').addEventListener('click', function () {
                 const startTargetDateString = document.getElementById('startTargetDateInput').value;
                 const endTargetDateString = document.getElementById('endTargetDateInput').value;
                 const startTargetDate = new Date(startTargetDateString).getTime();
                 const endTargetDate = new Date(endTargetDateString).getTime();
 
-                const productId = startCountdown.dataset.productId;
+                const productId = this.dataset.productId;
 
                 const dateValidationMessage = document.getElementById('dateValidationMessage');
                 if (!startTargetDate && !endTargetDate) {
@@ -296,10 +292,7 @@
                     return;
                 }
                 if (startTargetDate > new Date().getTime()) {
-                    console.log("hello");
-
                     document.getElementById('placeBid').disabled = true;
-                    return;
                 }
                 targetDate = new Date(startTargetDateString);
                 if (isNaN(targetDate.getTime())) {
@@ -311,6 +304,7 @@
                     alert("Invalid date selected!");
                     return;
                 }
+
                 dateValidationMessage.textContent = "";
                 document.getElementById('startTargetDateInput').value = "";
                 document.getElementById('endTargetDateInput').value = "";
@@ -318,6 +312,7 @@
             });
         }
 
+        const product_id = parseInt('@Model?.Product?.Id')||0;
         function updateCountdown() {
             const now = new Date().getTime();
             const timeRemaining = targetDate - now;
@@ -333,7 +328,7 @@
                 } else {
                     document.getElementById('countdown').textContent = "";
                     document.getElementById('placeBid').disabled = true;
-                    AuctionEndNotification(product_id, user_id);
+                    AuctionEndNotification(product_id);
                 }
                 return;
             }
@@ -344,6 +339,7 @@
 
             document.getElementById('countdown').textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
+
         //chat message input
         document.getElementById('messageInput').addEventListener('input', function () {
             this.style.height = 'auto';
@@ -356,8 +352,8 @@
         });
         // chat send button
         document.getElementById('sendButton').addEventListener('click', function () {
-            const isAuthenticated = @User.Identity?.IsAuthenticated.ToString().ToLower();
-            if (!isAuthenticated) {
+            const isAuthenticated = "@User.Identity?.IsAuthenticated.ToString().ToLower()";
+            if (isAuthenticated!=="true") {
                 window.location.href = '/Identity/Account/Login';
                 return;
             }
@@ -385,6 +381,7 @@
             .build();
 
         //Place Bid
+        
         connection.on("PlaceBid", (bid) => {
             const formattedBidPrice = new Intl.NumberFormat("ur-PK", {
                 style: "currency",
@@ -393,8 +390,7 @@
             }).format(bid.bidPrice);
             document.getElementById("currentBid").textContent = `Current Bid: ${formattedBidPrice}`;
             document.getElementById("currentBid").innerHTML += `<input type="hidden" id="maxBidValue" value="${bid.bidPrice}" />`;
-            const currentUserId = document.getElementById("currentUserId").value;
-            if (currentUserId !== bid.userId) {
+            if ('@Model?.Bid?.UserId' != bid.userId) {
                 toastr.options = {
                     "positionClass": "toast-top-center",
                     "timeOut": "1000",
@@ -404,9 +400,9 @@
         });
         //chat
         connection.on("Received", (messageInput, productId) => {
-            if (productId == @Model?.Product?.Id) {
+            if (productId == '@Model?.Product?.Id') {
                 const chat = document.getElementById('chat');
-                chat.innerHTML += messageInput + "<br>";
+                chat.innerHTML += `<div class="bg-success text-dark rounded w-75 p-1 my-1">${messageInput}</div>`;
             }
         });
 
@@ -416,8 +412,8 @@
                 clearInterval(countdownInterval);
             }
 
-            let startTargetDate = countDownTarget.startTargetDate;
-            let endTargetDate = countDownTarget.endTargetDate;
+            startTargetDate = countDownTarget.startTargetDate;
+            endTargetDate = countDownTarget.endTargetDate;
 
             startTargetDate = startTargetDate ? new Date(startTargetDate).getTime() : null;
             if (startTargetDate != null && startTargetDate > new Date().getTime()) {
@@ -434,43 +430,6 @@
                     countdownInterval = setInterval(updateCountdown, 1000);
                     document.getElementById('placeBid').disabled = false;
                     updateCountdown();
-                }
-            }
-        });
-        //auction end notification and Proceed to payment
-        connection.on("AuctionEndNotification", (bidViewModel) => {
-            const isAuthenticated = @User.Identity?.IsAuthenticated.ToString().ToLower();
-            const currentUserMaxBid = bidViewModel.currentUserMaxBid;
-            const maxBid = bidViewModel.maxBid;
-            const isNotificationSeen = @Model?.Bid?.IsBidEndNotificationSeen.ToString().ToLower();
-
-            if (isAuthenticated && currentUserMaxBid != 0) {
-                if (currentUserMaxBid == maxBid) {
-                    document.getElementById('notifyUser').innerHTML = `
-                                                                                <hr class="text-dark" />
-                                                                                <div class="ps-2">
-                                                                                    <a href="" class="btn bg-gradient-right btn-hover">Proceed to Payment</a>
-                                                                                </div>`;
-
-                    if (!isNotificationSeen) {
-                        document.getElementById('notifyUser').innerHTML += `
-                                                                                <div class="alert alert-success alert-dismissible mt-2 ms-2" role="alert">
-                                                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                                                    Congratulations! 🎉
-                                                                                    You have won the auction!
-                                                                                    Your winning bid: Rs ${maxBid}.
-                                                                                    Please complete your payment within 24 hours.
-                                                                                </div>`;
-                    }
-                } else if (!isNotificationSeen) {
-                    document.getElementById('notifyUser').innerHTML = `
-                                                                                <hr class="text-dark" />
-                                                                                <div class="alert alert-dismissible mt-2 ms-2" style="background-color:#DC143C" role="alert">
-                                                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                                                    Unfortunately, you didn’t win this auction.
-                                                                                    Your bid was Rs ${currentUserMaxBid} while the winning bid was Rs ${maxBid}.
-                                                                                    Don’t worry! — more auctions are waiting for you.
-                                                                                </div>`;
                 }
             }
         });

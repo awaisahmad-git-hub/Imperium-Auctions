@@ -1,0 +1,24 @@
+﻿@model IEnumerable<AuctionOrder>
+@{
+    ViewBag.Title = "Manage Order";
+}
+<div class="row overflow-x-auto scrollbar-color" style="max-height: 500px;">
+    <table class="table caption-top table-bordered table-striped border-dark table-light" style="table-layout:fixed">
+        <caption><h2 class="text-success fw-bold">Order List</h2></caption>
+        <thead>
+            <tr>
+                <th style="width:50px">No.</th>
+                <th style="width:135px">Product Title</th>
+                <th style="width:135px">Price</th>
+                <th style="width:135px">Payment Due Date</th>
+                <th style="width:135px">Payment Date</th>
+                <th style="width:135px">Payment Status</th>
+                <th style="width:135px">Delivery Status</th>
+                <th style="width:135px"></th>
+            </tr>
+        </thead>
+        <tbody id="manageOrderTbody">
+            <partial name="_ManageOrderTableBody" />
+        </tbody>
+    </table>
+</div>

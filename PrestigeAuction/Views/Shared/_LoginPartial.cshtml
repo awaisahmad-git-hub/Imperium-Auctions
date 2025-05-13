@@ -10,6 +10,9 @@
         @if (SignInManager.IsSignedIn(User))
         {
             <li class="nav-item">
+            <a asp-area="User" asp-controller="AuctionOrder" asp-action="MyOrders" id="myOrder" class="nav-link text-white header-footer-link-hover" style="cursor:pointer">My Orders</a>
+            </li>
+            <li class="nav-item">
             <a id="manage" class="nav-link text-white header-footer-link-hover" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @customName!</a>
             </li>
             <li class="nav-item">

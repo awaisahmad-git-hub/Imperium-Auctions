@@ -1,0 +1,14 @@
+﻿@{
+	ViewBag.Title = "Order Confirmation";
+}
+<div class="row text-center my-5 text-dark justify-content-center">
+	<h1 style="font-size: 100px;"><i class="bi bi-check-circle text-success"></i></h1>
+	<h1>Thank you for your purchase!</h1>
+	<p>We're getting your order ready to be shipped. You can check the delivery status in your orders.</p>
+	<div class="d-flex align-items-center w-auto">
+		<a asp-controller="AuctionOrder" asp-action="MyOrders" class="btn bg-gradient-right btn-hover form-control btn-transition w-auto">View your order</a>
+		<div class="divider-text text-dark">or</div>
+		<a asp-controller="Home" asp-action="Index" class="btn border-dark text-dark form-control btn-transition shadow-none w-auto">Back to Home</a>
+	</div>
+</div>
+

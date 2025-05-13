@@ -7,6 +7,7 @@
         IProductImageRepository ProductImageRepository { get; }
         IBidRepository BidRepository { get; }
         ICountDownTargetRepository CountDownTargetRepository { get; }
+        IAuctionOrderRepository AuctionOrderRepository { get; }
         void Save();
     }
 }

@@ -30,19 +30,8 @@ namespace PrestigeAuction.Repository
                 obj.SKU = product.SKU;
                 obj.StartingPrice = product.StartingPrice;
                 obj.CategoryId = product.CategoryId; 
-                obj.ProductImageList = product.ProductImageList;
-                /*if (product.ImageURL != null)
-                {
-                    obj.ImageURL = product.ImageURL;
-                }*/                
+                obj.ProductImageList = product.ProductImageList;    
             }
         }
-       /* public IQueryable<Product> SearchString(string searchString)
-        {
-            
-        IQueryable<Product> searchProducts = _context.Products.Where(u => u.Category.Name == searchString).Include("Category");
-            
-            return searchProducts.FirstOrDefault();
-        }*/
     }
 }

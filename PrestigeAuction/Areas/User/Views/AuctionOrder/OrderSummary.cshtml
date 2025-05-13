@@ -1,0 +1,78 @@
+﻿@model AuctionOrder
+
+@{
+    ViewBag.Title = "Order Summary";
+}
+
+<style>
+    .custom-padding-table tr:not(:last-child) td,
+    .custom-padding-table tr:not(:last-child) th {
+        padding-top: 2rem; /* 1rem = top/bottom, 1.5rem = left/right */
+        padding-bottom: 2rem
+    }
+</style>
+<div class="row justify-content-center">
+    <div class="col-md-10 my-4">
+        <form method="post">
+            <div class="card shadow">
+                <div class="card-header bg-success bg-gradient">
+                    <h2 class="text-white text-center">Order Summary</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <h5 class="text-success fw-bold pt-1">Shipping Details</h5>
+                            <input asp-for="ProductID" hidden />
+
+                            <label asp-for="Name" class="col-form-label text-success"></label>
+                            <input asp-for="Name" class="form-control form-input-style" id="sd-name" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+
+                            <label asp-for="PhoneNumber" class="col-form-label text-success"></label>
+                            <input asp-for="PhoneNumber" class="form-control form-input-style" id="sd-phone-number" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+
+                            <label asp-for="ShippingAddress" class="col-form-label text-success"></label>
+                            <textarea asp-for="ShippingAddress" class="form-control form-input-style" id="sd-shipping-address"></textarea>
+                            <span asp-validation-for="ShippingAddress" class="text-danger"></span>
+
+                            <label asp-for="PostalCode" class="col-form-label text-success"></label>
+                            <input asp-for="PostalCode" class="form-control form-input-style" id="sd-postal-code" />
+                            <span asp-validation-for="PostalCode" class="text-danger"></span>
+
+                            <input type="button" id="save-changes" data-auction-order="" value="Save Changes" class="btn bg-gradient-right btn-hover mt-3" />
+                        </div>
+                        <div class="col-md-3">
+                        </div>
+                        <div class="col-md-5">
+                            <table class="table table-light caption-top border custom-padding-table" style="table-layout:fixed">
+                                <caption><h5 class="text-success fw-bold">Order Summary</h5></caption>
+                                <tbody>
+                                    <tr>
+                                        <th>Product Name</th>
+                                        <td class="text-ellipsis">@Model.Product?.Title</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Total Price</th>
+                                        <td>@Model.FinalBidPrice.ToString("'Rs.' #,##0", new CultureInfo("ur-PK"))</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Due Date</th>
+                                        <td class="text-ellipsis small">@(Model.PaymentDueDate.ToString("MMM dd, yyyy h:mm tt") + " PKT")</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="submit" class="btn bg-gradient-right btn-hover w-75" value="Place Order" /></td>
+                                        <td><a asp-controller="Home" asp-action="ProductBid" asp-route-id="@Model.ProductID" class="btn border-dark text-dark form-control btn-transition shadow-none w-75">Go Back</a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

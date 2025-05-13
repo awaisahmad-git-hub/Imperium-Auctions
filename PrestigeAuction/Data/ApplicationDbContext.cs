@@ -17,6 +17,7 @@ namespace PrestigeAuction.Data
         public DbSet<CountDownTarget> CountDownTargets { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
+        public DbSet<AuctionOrder> AuctionOrders { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -25,6 +26,7 @@ namespace PrestigeAuction.Data
             modelBuilder.Entity<Bid>().ToTable("Bids");
             modelBuilder.Entity<CountDownTarget>().ToTable("CountDownTargets");
             modelBuilder.Entity<ProductImage>().ToTable("ProductImages");
+            modelBuilder.Entity<AuctionOrder>().ToTable("AuctionOrders");
 
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Mobile", DisplayOrder = 1,},

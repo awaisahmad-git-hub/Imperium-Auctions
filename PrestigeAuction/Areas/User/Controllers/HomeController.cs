@@ -14,11 +14,9 @@ namespace PrestigeAuction.Areas.User.Controllers
     public class HomeController : Controller
     {
         private readonly IMainRepository _MainRepo;
-        private readonly UserManager<IdentityUser> _userManager;
-        public HomeController(IMainRepository mainRepo, UserManager<IdentityUser> userManager)
+        public HomeController(IMainRepository mainRepo)
         {
             _MainRepo = mainRepo;
-            _userManager = userManager;
         }
         [Route("/")]
         public IActionResult Index(string? searchString)
@@ -54,23 +52,28 @@ namespace PrestigeAuction.Areas.User.Controllers
         public async Task<IActionResult> ProductBid(int? id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            /*var user = await _userManager.GetUserAsync(User) as ApplicationUser;
-            var customName = user?.Name;*/
+
             BidViewModel bidViewModel = new()
             {
                 Product = _MainRepo.ProductRepository.Get(u => u.Id == id, includeProperty: "Category,ProductImageList"),
-                Bid = _MainRepo.BidRepository.Get(u=>u.ProductID==id && u.UserId==userId),
+                Bid = _MainRepo.BidRepository.Get(u => u.ProductID == id && u.UserId == userId),
                 CountDownTarget = _MainRepo.CountDownTargetRepository.Get(u => u.ProductID == id),
                 MaxBid = await _MainRepo.BidRepository.MaxBid(id),
                 CurrentUserMaxBid = await _MainRepo.BidRepository.CurrentUserMaxBid(id, userId)
             };
+            // delete bid after the due date
+            if (bidViewModel.Bid is not null && bidViewModel.CountDownTarget?.EndTargetDate.AddDays(2) <= DateTime.UtcNow.ToLocalTime())
+            {
+                _MainRepo.BidRepository.Delete(bidViewModel.Bid);
+                await _MainRepo.BidRepository.SaveA();
+            }
+            // check if the user is not seen winner or loser notification
             if (bidViewModel.Bid is not null && bidViewModel.Bid.IsBidEndNotificationSeen is false && bidViewModel.CountDownTarget?.EndTargetDate <= DateTime.UtcNow.ToLocalTime())
             {
                 bidViewModel.Bid.IsBidEndNotificationSeen = true;
-                _MainRepo.BidRepository.Update(bidViewModel.Bid);
                 await _MainRepo.BidRepository.SaveA();
-                TempData["WinnerNotification"] = $"Congratulations! 🎉 You have won the auction! Your winning bid: {bidViewModel.MaxBid.ToString("Rs #,##0", new CultureInfo("ur-PK"))}. Please complete your payment within 24 hours.";
-                TempData["LoserNotification"] = $"Unfortunately, you didn’t win this auction. Your bid was {bidViewModel.CurrentUserMaxBid.ToString("Rs #,##0", new CultureInfo("ur-PK"))} while the winning bid was {bidViewModel.MaxBid.ToString("Rs #,##0", new CultureInfo("ur-PK"))}. Don’t worry! — more auctions are waiting for you.";
+                TempData["WinnerNotification"] = $"Congratulations! 🎉 You have won the auction! Your winning bid is {bidViewModel.MaxBid.ToString("'Rs.' #,##0", new CultureInfo("ur-PK"))}. Please complete your payment within 48 hours. Otherwise, you will lose the product.";
+                TempData["LoserNotification"] = $"Unfortunately, you didn’t win this auction. Your bid was {bidViewModel.CurrentUserMaxBid.ToString("'Rs.' #,##0", new CultureInfo("ur-PK"))} while the winning bid was {bidViewModel.MaxBid.ToString("'Rs.' #,##0", new CultureInfo("ur-PK"))}. Don’t worry! — more auctions are waiting for you.";
             }
             return View(bidViewModel);
         }

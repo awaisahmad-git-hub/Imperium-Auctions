@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
+	
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -9,7 +9,9 @@
   <ItemGroup>
     <Content Remove="Views\Shared\_CurrentBid.cshtml" />
     <Content Remove="Views\Shared\_TableBody.cshtml" />
+    <Content Remove="wwwroot\js\auctionOrder.js" />
     <Content Remove="wwwroot\js\bid.js" />
+    <Content Remove="wwwroot\js\manageOrder.js" />
     <Content Remove="wwwroot\js\product.js" />
   </ItemGroup>
 
@@ -37,6 +39,7 @@
     <_ContentIncludedByDefault Remove="Areas\Admin\Views\Category\Edit.cshtml" />
     <_ContentIncludedByDefault Remove="Views\Shared\_Notification.cshtml" />
     <_ContentIncludedByDefault Remove="Views\Shared\_TableBody.cshtml" />
+    <_ContentIncludedByDefault Remove="wwwroot\js\auctionOrder.js" />
     <_ContentIncludedByDefault Remove="wwwroot\js\product.js" />
   </ItemGroup>
 
@@ -45,6 +48,8 @@
     <None Include="Areas\User\Views\Home\_HomeProducts.cshtml" />
     <None Include="Views\Shared\_Notification.cshtml" />
     <None Include="Areas\Admin\Views\Product\_ProductTableBody.cshtml" />
+    <None Include="wwwroot\js\manageOrder.js" />
+    <None Include="wwwroot\js\auctionOrder.js" />
     <None Include="wwwroot\js\bid.js" />
     <None Include="wwwroot\js\product.js" />
   </ItemGroup>
