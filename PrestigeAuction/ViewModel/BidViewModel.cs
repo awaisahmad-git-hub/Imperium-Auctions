@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using PrestigeAuction.Models;
+using PrestigeAuction.Repository;
 
 namespace PrestigeAuction.ViewModel
 {
@@ -11,5 +12,7 @@ namespace PrestigeAuction.ViewModel
         public Bid? Bid { get; set; }
         public double MaxBid { get; set; }
         public double CurrentUserMaxBid { get; set; }
+        public IOrderedQueryable<ChatMessage>? ChatMessages { get; set; }
+        public string? CurrentUserId { get; set; }
     }
 }

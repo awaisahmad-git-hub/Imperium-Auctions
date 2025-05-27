@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PrestigeAuction.Models;
+using PrestigeAuction.Repository;
 
 namespace PrestigeAuction.Data
 {
@@ -18,6 +19,7 @@ namespace PrestigeAuction.Data
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<AuctionOrder> AuctionOrders { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -27,6 +29,7 @@ namespace PrestigeAuction.Data
             modelBuilder.Entity<CountDownTarget>().ToTable("CountDownTargets");
             modelBuilder.Entity<ProductImage>().ToTable("ProductImages");
             modelBuilder.Entity<AuctionOrder>().ToTable("AuctionOrders");
+            modelBuilder.Entity<ChatMessage>().ToTable("ChatMessages");
 
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Mobile", DisplayOrder = 1,},

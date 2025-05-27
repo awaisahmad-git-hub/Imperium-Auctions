@@ -52,20 +52,22 @@ namespace PrestigeAuction.Areas.User.Controllers
         public async Task<IActionResult> ProductBid(int? id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
             BidViewModel bidViewModel = new()
             {
                 Product = _MainRepo.ProductRepository.Get(u => u.Id == id, includeProperty: "Category,ProductImageList"),
                 Bid = _MainRepo.BidRepository.Get(u => u.ProductID == id && u.UserId == userId),
                 CountDownTarget = _MainRepo.CountDownTargetRepository.Get(u => u.ProductID == id),
                 MaxBid = await _MainRepo.BidRepository.MaxBid(id),
-                CurrentUserMaxBid = await _MainRepo.BidRepository.CurrentUserMaxBid(id, userId)
+                CurrentUserMaxBid = await _MainRepo.BidRepository.CurrentUserMaxBid(id, userId),
+                ChatMessages = _MainRepo.ChatMessageRepository.GetAllCurrentProductMessages(id),
+                CurrentUserId = userId
             };
-            // delete bid after the due date
+            // delete bid and chat after the due date
             if (bidViewModel.Bid is not null && bidViewModel.CountDownTarget?.EndTargetDate.AddDays(2) <= DateTime.UtcNow.ToLocalTime())
             {
                 _MainRepo.BidRepository.Delete(bidViewModel.Bid);
-                await _MainRepo.BidRepository.SaveA();
+                _MainRepo.ChatMessageRepository.DeleteRange(bidViewModel.ChatMessages);
+                await _MainRepo.SaveA();
             }
             // check if the user is not seen winner or loser notification
             if (bidViewModel.Bid is not null && bidViewModel.Bid.IsBidEndNotificationSeen is false && bidViewModel.CountDownTarget?.EndTargetDate <= DateTime.UtcNow.ToLocalTime())

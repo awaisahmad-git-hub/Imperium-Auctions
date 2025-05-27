@@ -112,7 +112,7 @@ namespace PrestigeAuction.Areas.User.Controllers
             await _MainRepo.CountDownTargetRepository.SaveA();
             return Ok();
         }
-
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> AuctionEndNotification([FromBody] BidProductIdDTO bidProductIdDTO)
         {
@@ -127,7 +127,7 @@ namespace PrestigeAuction.Areas.User.Controllers
                     CurrentUserMaxBid = await _MainRepo.BidRepository.CurrentUserMaxBid(bidProductIdDTO.ProductId, userId)
                 };
 
-                if (bidViewModel.Bid != null&& bidViewModel.CountDownTarget?.EndTargetDate <= DateTime.UtcNow.ToLocalTime())
+                if ( bidViewModel.Bid != null&& bidViewModel.CountDownTarget?.EndTargetDate <= DateTime.UtcNow.ToLocalTime())
                 {
                     bidViewModel.Bid.IsBidEndNotificationSeen = true;
                     await _MainRepo.BidRepository.SaveA();
@@ -143,6 +143,7 @@ namespace PrestigeAuction.Areas.User.Controllers
                     }
                 }
             }
+            Console.WriteLine("Your message here");
             return NoContent();
         }
         #endregion

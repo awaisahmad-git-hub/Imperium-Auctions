@@ -14,6 +14,8 @@ namespace PrestigeAuction.Repository
         public ICountDownTargetRepository CountDownTargetRepository { get; private set; }
         public IAuctionOrderRepository AuctionOrderRepository { get; private set; }
 
+        public IChatMessageRepository ChatMessageRepository { get; private set; }
+
         public MainRepository(ApplicationDbContext db)
         {
             _context = db;
@@ -23,11 +25,16 @@ namespace PrestigeAuction.Repository
             BidRepository = new BidRepository(_context);
             CountDownTargetRepository= new CountDownTargetRepository(_context);
             AuctionOrderRepository = new AuctionOrderRepository(_context);
+            ChatMessageRepository = new ChatMessageRepository(_context);
         }
 
         public void Save()
         {
             _context.SaveChanges();
+        }
+        public async Task SaveA()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -8,6 +8,9 @@
         IBidRepository BidRepository { get; }
         ICountDownTargetRepository CountDownTargetRepository { get; }
         IAuctionOrderRepository AuctionOrderRepository { get; }
+        IChatMessageRepository ChatMessageRepository { get; }
         void Save();
+        Task SaveA();
+
     }
 }
