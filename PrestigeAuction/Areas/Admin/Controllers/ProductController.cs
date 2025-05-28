@@ -66,7 +66,7 @@ namespace PrestigeAuction.Areas.Admin.Controllers
             }
             else
             {
-                productViewModel.Product = _MainRepo.ProductRepository.Get(u => u.Id == id, includeProperty: "ProductImageList");
+                productViewModel.Product = _MainRepo.ProductRepository.Get(u => u.Id == id, includeProperty: "ProductImageList,Category");
 
                 if (productViewModel.Product == null)
                 {

@@ -118,12 +118,6 @@ namespace PrestigeAuction.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
-            if (!_roleManager.RoleExistsAsync(StaticValues.Role_User).GetAwaiter().GetResult())
-            {
-                 _roleManager.CreateAsync(new IdentityRole(StaticValues.Role_User)).GetAwaiter().GetResult();
-                 _roleManager.CreateAsync(new IdentityRole(StaticValues.Role_Admin)).GetAwaiter().GetResult();
-            }
-
             Input = new InputModel()
             {
                 RoleList = _roleManager.Roles.Select(u=>u.Name).Select(u=>new SelectListItem

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using PrestigeAuction.Utility;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Stripe;
+using PrestigeAuction.DbInitializer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,7 +45,7 @@ builder.Services.AddAuthentication().AddFacebook(option =>
 builder.Services.AddScoped<IMainRepository, MainRepository>();
 builder.Services.AddScoped<IEmailSender,EmailSender>();
 builder.Services.AddRazorPages();
-
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 // Add SignalR service
 builder.Services.AddSignalR();
 
@@ -64,7 +65,7 @@ StripeConfiguration.ApiKey=builder.Configuration.GetSection("Stripe:SecretKey").
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-
+SeedDatabase();
 app.MapRazorPages();
 
 // Map SignalR hubs
@@ -75,3 +76,21 @@ app.MapControllerRoute(
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+void SeedDatabase()
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        try
+        {
+            var dbInitializer = services.GetRequiredService<IDbInitializer>();
+            dbInitializer.Initialize();
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred while seeding the database.");
+        }
+    }
+}

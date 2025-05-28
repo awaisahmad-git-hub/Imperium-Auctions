@@ -32,7 +32,7 @@ namespace PrestigeAuction.Data
             modelBuilder.Entity<ChatMessage>().ToTable("ChatMessages");
 
             modelBuilder.Entity<Category>().HasData(
-                new Category { Id = 1, Name = "Mobile", DisplayOrder = 1,},
+                new Category { Id = 1, Name = "Other", DisplayOrder = 1,},
                 new Category { Id = 2, Name = "Computer", DisplayOrder = 2 },
                 new Category { Id = 3, Name = "Laptop", DisplayOrder = 3 }
                 );

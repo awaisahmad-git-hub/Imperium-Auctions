@@ -48,42 +48,48 @@
                 <div class="row">
                     <div class="col-sm-8">
                         <form method="post" enctype="multipart/form-data">
-                                <input asp-for="Product.Id" hidden />
-                                <div>
-                                    <label asp-for="Product.Title" class="col-form-label text-success"></label>
-                                    <input asp-for="Product.Title" class="form-control form-input-style" />
-                                    <span asp-validation-for="Product.Title" class="text-danger"></span>
-                                </div>
-                                <div class="mt-2">
-                                    <label asp-for="Product.Description" class="col-form-label text-success"></label>
-                                    <textarea asp-for="Product.Description" class="form-control form-input-style" style="height:100px"></textarea>
-                                </div>
-                                <div class="mt-2">
-                                    <label asp-for="Product.SKU" class="col-form-label text-success"></label>
-                                    <input asp-for="Product.SKU" class="form-control form-input-style" />
-                                    <span asp-validation-for="Product.SKU" class="text-danger"></span>
-                                </div>
-                                <div class="mt-2">
-                                    <label asp-for="Product.StartingPrice" class="col-form-label text-success"></label>
-                                    <input asp-for="Product.StartingPrice" class="form-control form-input-style" />
-                                    <span asp-validation-for="Product.StartingPrice" class="text-danger"></span>
-                                </div>
-                                <div class="mt-4">
-                                    <a id="category-button" class="btn btn-hover d-flex justify-content-between align-items-center text-white bg-gradient-right dropdown-toggle w-100" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                                        --Select Category--
-                                    </a>
-                                    <div class="dropdown-menu bg-gradient-right position-absolute overflow-auto scrollbar-color" style="cursor:pointer;max-height:240px" id="productCategoryMenu">
-                                        @if (Model?.CategoryList != null)
+                            <input asp-for="Product.Id" hidden />
+                            <div>
+                                <label asp-for="Product.Title" class="col-form-label text-success"></label>
+                                <input asp-for="Product.Title" class="form-control form-input-style" />
+                                <span asp-validation-for="Product.Title" class="text-danger"></span>
+                            </div>
+                            <div class="mt-2">
+                                <label asp-for="Product.Description" class="col-form-label text-success"></label>
+                                <textarea asp-for="Product.Description" class="form-control form-input-style" style="height:100px"></textarea>
+                            </div>
+                            <div class="mt-2">
+                                <label asp-for="Product.SKU" class="col-form-label text-success"></label>
+                                <input asp-for="Product.SKU" class="form-control form-input-style" />
+                                <span asp-validation-for="Product.SKU" class="text-danger"></span>
+                            </div>
+                            <div class="mt-2">
+                                <label asp-for="Product.StartingPrice" class="col-form-label text-success"></label>
+                                <input asp-for="Product.StartingPrice" class="form-control form-input-style" />
+                                <span asp-validation-for="Product.StartingPrice" class="text-danger"></span>
+                            </div>
+
+                            <div class="mt-4">
+                                <a id="category-button" class="btn btn-hover d-flex justify-content-between align-items-center text-white bg-gradient-right dropdown-toggle w-100" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                                    @(Model.Product?.Category?.Name ?? "--Select Category--")
+                                </a>
+                                <div class="dropdown-menu bg-gradient-right position-absolute overflow-auto scrollbar-color" style="cursor:pointer;max-height:240px" id="productCategoryMenu">
+                                    @if (Model?.CategoryList != null)
+                                    {
+                                        foreach (var item in @Model.CategoryList)
                                         {
-                                            foreach (var item in @Model.CategoryList)
+                                            <a class="dropdown-item btn-hover text-white productCategoryMenuItem" data-category-text="@item.Text" data-category-value="@item.Value">@item.Text</a>
+                                            if (Model.Product?.CategoryId is 0 &&item.Text=="Other")
                                             {
-                                                <a class="dropdown-item btn-hover text-white productCategoryMenuItem" data-category-text="@item.Text" data-category-value="@item.Value">@item.Text</a>
-                                                if (item.Text=="Other")
-                                                {
                                                 <input id="hiddenCategory" type="hidden" asp-for="Product.CategoryId" value="@item.Value" />
-                                                }
                                             }
                                         }
+                                        if (Model.Product?.CategoryId is not 0)
+                                        {
+                                            <input id="hiddenCategory" type="hidden" asp-for="Product.CategoryId" />
+                                        }
+                                    }
+
                                     </div>
                                     <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
                                 </div>
