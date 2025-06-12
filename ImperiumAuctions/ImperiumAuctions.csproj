@@ -1,0 +1,70 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+	
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Views\Shared\_CurrentBid.cshtml" />
+    <Content Remove="Views\Shared\_TableBody.cshtml" />
+    <Content Remove="wwwroot\js\auctionOrder.js" />
+    <Content Remove="wwwroot\js\bid.js" />
+    <Content Remove="wwwroot\js\manageOrder.js" />
+    <Content Remove="wwwroot\js\product.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.12.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="8.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.6" />
+    <PackageReference Include="Stripe.net" Version="48.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Areas\Admin\Views\Category\Edit.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Areas\Admin\Views\Category\Edit.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Shared\_Notification.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Shared\_TableBody.cshtml" />
+    <_ContentIncludedByDefault Remove="wwwroot\js\auctionOrder.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\js\product.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Areas\Admin\Views\Category\Edit.cshtml" />
+    <None Include="Areas\User\Views\Home\_HomeProducts.cshtml" />
+    <None Include="Views\Shared\_Notification.cshtml" />
+    <None Include="Areas\Admin\Views\Product\_ProductTableBody.cshtml" />
+    <None Include="wwwroot\js\manageOrder.js" />
+    <None Include="wwwroot\js\auctionOrder.js" />
+    <None Include="wwwroot\js\bid.js" />
+    <None Include="wwwroot\js\product.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Shared\_Notification.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\image\logo\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Shared\_TableBody.cshtml" />
+  </ItemGroup>
+
+</Project>
